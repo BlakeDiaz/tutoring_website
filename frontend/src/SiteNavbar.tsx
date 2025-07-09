@@ -8,7 +8,7 @@ function SiteNavbar() {
           <Link to="/">Yucheng's Tutoring</Link>
         </li>
         <li>
-          <Link to="/">Book</Link>
+          <Link to="/book">Book</Link>
         </li>
         <li>
           <Link to="/">About</Link>
