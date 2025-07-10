@@ -79,7 +79,7 @@ export const dateToString = (date: Date): string => {
 /**
  * Gets the current date in Chicago time.
  *
- * @returns Current date in [month, day, year] format.
+ * @returns Current date as a Date object.
  */
 export const getDate = (): Date => {
   const date = new Date().toLocaleString("en-US", {
