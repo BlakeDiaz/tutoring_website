@@ -4,7 +4,7 @@ import SiteNavbar from "./SiteNavbar";
 
 const WEEK_COUNT = 6;
 
-function Book() {
+function Calendar() {
   return (
     <div>
       <SiteNavbar />
@@ -58,4 +58,4 @@ const formatDate = (date: Date): string => {
   return date.day.toString();
 };
 
-export default Book;
+export default Calendar;

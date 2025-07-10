@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App";
-import Book from "./Book";
+import Calendar from "./Calendar";
 
 export const app_router = createBrowserRouter([
   {
@@ -9,6 +9,6 @@ export const app_router = createBrowserRouter([
   },
   {
     path: "/book",
-    Component: Book,
+    Component: Calendar,
   },
 ]);
