@@ -22,10 +22,11 @@ frontend/*.local
 *.njsproj
 *.sln
 *.sw?
-backend/__pycache__
 
-# Virtual environment
+# Python files
 backend/.venv
+backend/__pycache__
+backend/app/__pycache__
 
 # Secrets
 backend/config.ini
