@@ -64,7 +64,7 @@ month_abbrev_name_map.set(11, "Nov");
 month_abbrev_name_map.set(12, "Dec");
 
 /**
- * Converts a date to a string, formatted like the following: {year}\_{month}\_{day}. Leading zeroes are added if
+ * Converts a date to a string, formatted like the following: {year}-{month}-{day}. Leading zeroes are added if
  * necessary.
  *
  * @param date Date to be converted.
@@ -73,7 +73,7 @@ month_abbrev_name_map.set(12, "Dec");
 export const dateToString = (date: Date): string => {
   const month_str = date.month < 10 ? "0" + date.month : date.month.toString();
   const day_str = date.day < 10 ? "0" + date.day : date.day.toString();
-  return date.year + "_" + month_str + "_" + day_str;
+  return date.year + "-" + month_str + "-" + day_str;
 };
 
 /**
