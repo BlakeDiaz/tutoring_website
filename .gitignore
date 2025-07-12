@@ -28,4 +28,4 @@ backend/__pycache__
 backend/.venv
 
 # Secrets
-backend/.env
+backend/config.ini
