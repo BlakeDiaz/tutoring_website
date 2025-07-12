@@ -1,6 +1,7 @@
 import { type JSX } from "react";
 import { type Date, getDate, getCalendarDates, getAbbreviatedMonthString, dateToString } from "./dates";
 import SiteNavbar from "./SiteNavbar";
+import { Link, Outlet } from "react-router";
 
 const WEEK_COUNT = 6;
 
@@ -9,6 +10,7 @@ function Calendar() {
     <div>
       <SiteNavbar />
       {renderCalendar()}
+      <Outlet />
     </div>
   );
 }
@@ -21,7 +23,11 @@ const renderCalendar = (): JSX.Element => {
     const row: Array<JSX.Element> = [];
     for (let j = 0; j < calendar_dates[0].length; j++) {
       const cur_date = calendar_dates[i][j];
-      row.push(<td key={dateToString(cur_date)}>{formatDate(cur_date)}</td>);
+      row.push(
+        <td key={dateToString(cur_date)}>
+          <Link to={{ pathname: `/book/${dateToString(cur_date)}` }}>{formatDate(cur_date)}</Link>
+        </td>
+      );
     }
     rows.push(<tr key={dateToString(calendar_dates[i][0])}>{row}</tr>);
   }
