@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router";
 import App from "./App";
 import Calendar from "./Calendar";
 import AppointmentList from "./AppointmentList";
+import BookingConfirmationForm from "./BookingConfirmationForm";
 
 export const app_router = createBrowserRouter([
   {
@@ -17,5 +18,9 @@ export const app_router = createBrowserRouter([
         Component: AppointmentList,
       },
     ],
+  },
+  {
+    path: "/confirm_booking",
+    Component: BookingConfirmationForm,
   },
 ]);
