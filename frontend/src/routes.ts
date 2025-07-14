@@ -3,6 +3,7 @@ import App from "./App";
 import Calendar from "./Calendar";
 import AppointmentList from "./AppointmentList";
 import BookingConfirmationForm from "./BookingConfirmationForm";
+import LoginForm from "./LoginForm";
 
 export const app_router = createBrowserRouter([
   {
@@ -22,5 +23,9 @@ export const app_router = createBrowserRouter([
   {
     path: "/confirm_booking",
     Component: BookingConfirmationForm,
+  },
+  {
+    path: "/login",
+    Component: LoginForm,
   },
 ]);
