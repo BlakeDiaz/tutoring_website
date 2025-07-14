@@ -1,12 +1,14 @@
 import { useState, type JSX } from "react";
 import SiteNavbar from "./SiteNavbar";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
+import { getRedirectURL } from "./redirects";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const [search_params, _setSearchParams] = useSearchParams();
 
   function doLoginClick(): void {
     if (email === "" || password === "") {
@@ -28,7 +30,8 @@ function LoginForm() {
 
   function doLoginResp(res: Response): void {
     if (res.status === 200) {
-      navigate("/dashboard");
+      const redirect_url = getRedirectURL("/", search_params);
+      navigate(redirect_url);
     } else if (res.status === 400) {
       const p = res.text();
       p.then(setError);
