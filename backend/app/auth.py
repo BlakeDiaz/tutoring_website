@@ -8,6 +8,7 @@ from flask_jwt_extended import (
 from .database_setup import pool
 from psycopg.rows import dict_row
 from bcrypt import checkpw
+from .user import User
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -47,12 +48,15 @@ def login():
                 response=f"No account with email {email} present", status=400
             )
 
-        user_id = record.get("user_id")
-        password_hashed = record.get("passwordsaltedhashed")
+        user = User(
+            user_id=record.get("userid"),
+            email=record.get("email"),
+            password_hashed=record.get("passwordsaltedhashed"),
+        )
 
-        if checkpw(bytes(password, "utf-8"), password_hashed):
+        if checkpw(bytes(password, "utf-8"), user.password_hashed):
             response = jsonify({"message": "Login successful"})
-            access_token = create_access_token(identity=str(user_id))
+            access_token = create_access_token(identity=user)
             set_access_cookies(response, access_token)
             return response
 

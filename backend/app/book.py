@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .database_setup import pool
 from psycopg.rows import dict_row
+from flask_jwt_extended import jwt_required, current_user
 
 bp = Blueprint("book", __name__, url_prefix="/api/book")
 
@@ -42,3 +43,10 @@ def get_available_appointments():
         return jsonify({"success": True, "appointments": appointments})
 
     return jsonify({"success": False})
+
+
+@bp.get("/get_scheduled_appointments")
+@jwt_required()
+def get_user_appointments():
+    print(current_user)
+    return jsonify({"message": "Success!"})
