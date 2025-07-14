@@ -1,10 +1,6 @@
 from psycopg_pool import ConnectionPool
-from configparser import ConfigParser
-import os
+from .config import config
 
-dirname = os.path.dirname(__file__)
-config = ConfigParser()
-config.read(os.path.join(dirname, "../config.ini"))
 name = config["credentials.database"]["name"]
 user = config["credentials.database"]["user"]
 password = config["credentials.database"]["password"]
