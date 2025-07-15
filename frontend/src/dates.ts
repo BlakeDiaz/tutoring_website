@@ -77,6 +77,84 @@ export const dateToString = (date: Date): string => {
 };
 
 /**
+ * Parses a YYYY-MM-DD formatted string into a date. Throws an error if the date is not in the correct format.
+ *
+ * @param date String to be parsed to a date.
+ * @returns Date object containing the information in date.
+ */
+export const parseDate = (date: string): Date => {
+  if (date.length !== 10) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+
+  const year_month_day = date.split("-");
+  if (year_month_day.length !== 3) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+  if (year_month_day[0].length !== 4) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+  if (year_month_day[1].length !== 2) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+  if (year_month_day[2].length !== 2) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+
+  const year = parseInt(year_month_day[0]);
+  if (isNaN(year)) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+  const month = parseInt(year_month_day[1]);
+  if (isNaN(month)) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+  const day = parseInt(year_month_day[2]);
+  if (isNaN(day)) {
+    throw new Error(`Date not in YYYY-MM-DD format for parseDate: ${date}`);
+  }
+
+  return { year, month, day };
+};
+
+/**
+ * Compares two dates. Returns a number indicating which date occurs later.
+ *
+ * @param a Date in YYYY-MM-DD format.
+ * @param b Date in YYYY-MM-DD format.
+ * @returns A positive number if 'a' is later than 'b', a negative number if 'a' is sooner than 'b', and 0 if the dates
+ *          same day.
+ */
+export const compareDates = (a: Date, b: Date): number => {
+  if (a.year !== b.year) {
+    return a.year - b.year;
+  }
+
+  if (a.month !== b.month) {
+    return a.month - b.month;
+  }
+
+  return a.day - b.day;
+};
+
+/**
+ * Formats a date like the following: {day-of-week-string}, {month-string} {day}, {year}. For example, the date
+ * {day: 10, month: 7, year: 2025} would be formatted as "Thursday, July 10, 2025".
+ *
+ * @param date Date to be formatted.
+ * @returns Formatted date with day of week, month, day, and year.
+ */
+export const formatDateForAppointment = (date: Date) => {
+  const day_of_week_str = getDayOfWeekString(getDayOfWeek(date));
+
+  const month_str = getMonthString(date.month);
+
+  const date_str = `${day_of_week_str}, ${month_str} ${date.day}, ${date.year}`;
+
+  return date_str;
+};
+
+/**
  * Gets the current date in Chicago time.
  *
  * @returns Current date as a Date object.
@@ -248,4 +326,12 @@ export const getCalendarDates = (date: Date, num_weeks: number): Array<Array<Dat
   }
 
   return calendar;
+};
+
+export const formatHour24ToHour12 = (hour_24: number): string => {
+  if (hour_24 < 13) {
+    return `${hour_24}:00 am`;
+  }
+
+  return `${hour_24 - 12}:00 pm`;
 };
