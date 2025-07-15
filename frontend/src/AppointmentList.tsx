@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, type Params } from "react-router";
-import { getDayOfWeekString, getMonthString, getDayOfWeek, type Date, dateToString } from "./dates";
+import { type Date, dateToString, parseDate, formatHour24ToHour12 } from "./dates";
 import { type JSX } from "react";
 import { isRecord } from "./types";
-
-type Appointment = { appointment_id: number; date: string; hour_24: number; capacity: number; slots_booked: number };
+import { parseAppointments, type Appointment } from "./appointments";
+import { formatDateForAppointment } from "./dates";
 
 function AppointmentList() {
   const params = useParams();
@@ -44,40 +44,8 @@ function AppointmentList() {
       // TODO more robust error handling
       throw new Error(`data.success is not true: ${data.success}`);
     }
-    if (!Array.isArray(data.appointments)) {
-      throw new Error(`data.appointments is not an array: ${typeof data.appointments}`);
-    }
 
-    const retrieved_appointments: Appointment[] = [];
-    for (const appointment of data.appointments) {
-      if (!isRecord(appointment)) {
-        throw new Error(`appointment is not a record: ${typeof appointment}`);
-      }
-      if (typeof appointment.appointment_id !== "number") {
-        throw new Error(`appointment.appointment_id is not a number: ${typeof appointment.appointment_id}`);
-      }
-      if (typeof appointment.date !== "string") {
-        throw new Error(`appointment.date is not a string: ${typeof appointment.date}`);
-      }
-      if (typeof appointment.hour_24 !== "number") {
-        throw new Error(`appointment.hour_24 is not a number: ${typeof appointment.hour_24}`);
-      }
-      if (typeof appointment.capacity !== "number") {
-        throw new Error(`appointment.capacity is not a number: ${typeof appointment.capacity}`);
-      }
-      if (typeof appointment.slots_booked !== "number") {
-        throw new Error(`appointment.slots_booked is not a number: ${typeof appointment.slots_booked}`);
-      }
-
-      retrieved_appointments.push({
-        appointment_id: appointment.appointment_id,
-        date: appointment.date,
-        hour_24: appointment.hour_24,
-        capacity: appointment.capacity,
-        slots_booked: appointment.slots_booked,
-      });
-    }
-
+    const retrieved_appointments = parseAppointments(data.appointments);
     setAppointments(retrieved_appointments);
   }
 
@@ -102,31 +70,7 @@ const getDateFromParams = (params: Readonly<Params<string>>): Date => {
     throw new Error("Something went wrong getting the date in BookDate!");
   }
 
-  const [year_str, month_str, day_str] = year_month_day.split("-");
-  const date = {
-    day: parseInt(day_str),
-    month: parseInt(month_str),
-    year: parseInt(year_str),
-  };
-
-  return date;
-};
-
-/**
- * Formats a date like the following: {day-of-week-string}, {month-string} {day}, {year}. For example, the date
- * {day: 10, month: 7, year: 2025} would be formatted as "Thursday, July 10, 2025".
- *
- * @param date Date to be formatted.
- * @returns Formatted date with day of week, month, day, and year.
- */
-const formatDateForAppointment = (date: Date) => {
-  const day_of_week_str = getDayOfWeekString(getDayOfWeek(date));
-
-  const month_str = getMonthString(date.month);
-
-  const date_str = `${day_of_week_str}, ${month_str} ${date.day}, ${date.year}`;
-
-  return date_str;
+  return parseDate(year_month_day);
 };
 
 const renderAppointmentBookingLinks = (appointments: Appointment[]): JSX.Element => {
@@ -149,20 +93,6 @@ const renderAppointmentBookingLinks = (appointments: Appointment[]): JSX.Element
   }
 
   return <div>{links}</div>;
-};
-
-/**
- * Formats 24-hour time into 12-hour time. For example, formats 13 to 1:00 pm, and formats 5 to 5:00 am.
- *
- * @param hour_24 The time in 24-hour time
- * @returns The time in 12-hour time, formatted
- */
-const formatHour24ToHour12 = (hour_24: number): string => {
-  if (hour_24 < 13) {
-    return hour_24 + ":00 am";
-  } else {
-    return hour_24 - 12 + ":00 pm";
-  }
 };
 
 export default AppointmentList;
