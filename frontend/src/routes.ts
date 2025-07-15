@@ -4,6 +4,7 @@ import Calendar from "./Calendar";
 import AppointmentList from "./AppointmentList";
 import BookingConfirmationForm from "./BookingConfirmationForm";
 import LoginForm from "./LoginForm";
+import Dashboard from "./Dashboard";
 
 export const app_router = createBrowserRouter([
   {
@@ -27,5 +28,9 @@ export const app_router = createBrowserRouter([
   {
     path: "/login",
     Component: LoginForm,
+  },
+  {
+    path: "/dashboard",
+    Component: Dashboard,
   },
 ]);
