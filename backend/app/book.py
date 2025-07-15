@@ -22,7 +22,8 @@ def get_available_appointments():
                 ON ats.appointmentID = b.appointmentID
             WHERE ats.date = %(date)s
             GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
-            HAVING ats.capacity - COUNT(b.userID) > 0;
+            HAVING ats.capacity - COUNT(b.userID) > 0
+            ORDER BY ats.hour24 ASC;
             """,
             {"date": date},
         )
