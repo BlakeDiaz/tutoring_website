@@ -12,6 +12,7 @@ def create_app():
     # TODO set to true in production
     app.config["JWT_COOKIE_SECURE"] = False
     app.config["JWT_SECRET_KEY"] = config["credentials.flask"]["jwt_secret_key"]
+    app.config["JWT_CSRF_METHODS"] = ["GET", "POST", "PUT", "PATCH", "DELETE"]
 
     from .jwt import jwt
 
