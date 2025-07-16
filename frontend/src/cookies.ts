@@ -17,7 +17,7 @@ export const getCookie = (name: string): string => {
 // See https://flask-jwt-extended.readthedocs.io/en/stable/token_locations.html#cookies
 const getCookieHelper = (name: string): string | undefined => {
   const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}`);
+  const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {
     return parts.pop()?.split(";").shift();
   }
