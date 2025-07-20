@@ -1,7 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from .database_setup import pool
 from psycopg.rows import dict_row
+from psycopg.errors import SerializationFailure
 from flask_jwt_extended import jwt_required, current_user
+import time
+
+TRANSACTION_RETRY_AMOUNT = 3
 
 bp = Blueprint("book", __name__, url_prefix="/api/book")
 
@@ -89,3 +93,115 @@ def get_user_appointments():
         return jsonify({"appointments": appointments})
 
     return jsonify({"message": "Error occured"})
+
+
+@bp.post("/book_appointment")
+@jwt_required()
+def book_appointment():
+    json: dict | None = request.get_json()
+
+    if json is None:
+        return Response(
+            response="Didn't send JSON to book_appointment POST request", status=400
+        )
+    if not "appointment_id" in json:
+        return Response(
+            response="Appointment ID not present in book_appointment POST request",
+            status=400,
+        )
+    if not "subject" in json:
+        return Response(
+            response="Subject not present in book_appointment POST request", status=400
+        )
+    if not "location" in json:
+        return Response(
+            response="Location not present in book_appointment POST request", status=400
+        )
+    if not "comments" in json:
+        return Response(
+            response="Comments not present in book_appointment POST request", status=400
+        )
+
+    appointment_id: int
+    try:
+        appointment_id = int(json["appointment_id"])
+    except ValueError:
+        return Response(
+            response="Appointment ID must be an integer in book_appointment POST request",
+            status=400,
+        )
+    subject = json["subject"]
+    location = json["location"]
+    comments = json["comments"]
+
+    tries = 0
+    while tries < TRANSACTION_RETRY_AMOUNT:
+        try:
+            with pool.connection() as conn:
+                cur = conn.cursor(row_factory=dict_row)
+                cur.execute(
+                    """
+                    SELECT ats.capacity AS capacity, COUNT(b.userID) AS slots_booked
+                    FROM AppointmentTimeSlots ats
+                    LEFT OUTER JOIN Bookings b
+                        ON ats.appointmentID = b.appointmentID
+                    WHERE ats.appointmentID = %(appointment_id)s
+                    GROUP BY ats.appointmentID, ats.capacity;
+                    """,
+                    {"appointment_id": appointment_id},
+                )
+
+                record = cur.fetchone()
+                slots_booked = record.get("slots_booked")
+                capacity = record.get("capacity")
+
+                # If there aren't enough slots, don't book the appointment
+                if slots_booked >= capacity:
+                    conn.rollback()
+                    return Response(message="Appointment already full", status=409)
+
+                cur.execute(
+                    """
+                    SELECT COUNT(*) > 0 AS already_booked
+                    FROM Bookings b
+                    WHERE b.appointmentID = %(appointment_id)s
+                      AND b.userID = %(user_id)s;
+                    """,
+                    {"appointment_id": appointment_id, "user_id": current_user.user_id},
+                )
+
+                record = cur.fetchone()
+
+                # If the user has already booked the appointment, don't book another slot
+                if record != None and record.get("already_booked"):
+                    conn.rollback()
+                    return Response("Already booked this appointment", status=409)
+
+                # Now that we know there's enough slots, reserve it
+                cur.execute(
+                    """
+                    INSERT INTO Bookings
+                    (appointmentID, userID, subject, location, comments)
+                    VALUES
+                    (%(appointment_id)s, %(user_id)s, %(subject)s, %(location)s, %(comments)s);
+                    """,
+                    {
+                        "appointment_id": appointment_id,
+                        "user_id": current_user.user_id,
+                        "subject": subject,
+                        "location": location,
+                        "comments": comments,
+                    },
+                )
+
+                return jsonify(
+                    {
+                        "message": "Successfully booked appointment",
+                    }
+                )
+
+        except SerializationFailure:
+            tries += 1
+            time.sleep(2 * tries)
+
+        return Response(message="Failed to book appointment", status_code=409)
