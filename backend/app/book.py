@@ -135,6 +135,19 @@ def book_appointment():
     location = json["location"]
     comments = json["comments"]
 
+    if len(subject) > 512:
+        return Response(
+            response="Subject length must be at most 512 characters", status=400
+        )
+    if len(location) > 512:
+        return Response(
+            response="Location length must be at most 512 characters", status=400
+        )
+    if len(comments) > 512:
+        return Response(
+            response="Comments length must be at most 512 characters", status=400
+        )
+
     tries = 0
     while tries < TRANSACTION_RETRY_AMOUNT:
         try:
