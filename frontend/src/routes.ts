@@ -5,6 +5,7 @@ import AppointmentList from "./AppointmentList";
 import BookingConfirmationForm from "./BookingConfirmationForm";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
+import RegisterForm from "./RegisterForm";
 
 export const app_router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ export const app_router = createBrowserRouter([
   {
     path: "/login",
     Component: LoginForm,
+  },
+  {
+    path: "/register",
+    Component: RegisterForm,
   },
   {
     path: "/dashboard",
