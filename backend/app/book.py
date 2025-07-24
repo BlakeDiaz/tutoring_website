@@ -204,4 +204,4 @@ def book_appointment():
             tries += 1
             time.sleep(2 * tries)
 
-        return Response(message="Failed to book appointment", status_code=409)
+    return Response(message="Failed to book appointment", status_code=409)
