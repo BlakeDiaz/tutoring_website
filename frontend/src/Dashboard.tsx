@@ -11,6 +11,7 @@ import { type User, parseUser } from "./users";
 function Dashboard() {
   const [user, setUser] = useState<User>();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [cancelledID, setCancelledID] = useState<number>();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -102,6 +103,75 @@ function Dashboard() {
     }
   }
 
+  function doCancelAppointment(appointment_id: number) {
+    setCancelledID(appointment_id);
+
+    const body = { appointment_id };
+
+    fetch("/api/book/cancel_appointment", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN": getCookie("csrf_access_token"),
+      },
+      body: JSON.stringify(body),
+    })
+      .then(doCancelAppointmentResp)
+      .catch(doCancelAppointmentError);
+  }
+
+  function doCancelAppointmentResp(res: Response) {
+    if (res.status === 200) {
+      const p = res.json();
+      p.then(doCancelAppointmentJson);
+      p.catch((ex) => doCancelAppointmentError("200 response is not JSON", ex));
+    } else if (res.status === 400) {
+      const p = res.text();
+      p.then(doCancelAppointmentError);
+      p.catch((ex) => doCancelAppointmentError("400 response is not text", ex));
+    } else {
+      doCancelAppointmentError(`Bad status code: ${res.status}`);
+    }
+  }
+
+  function doCancelAppointmentJson(_data: unknown) {
+    // TODO more robust error handling
+    setAppointments(
+      appointments.filter((appointment) => {
+        appointment.appointment_id != cancelledID;
+      })
+    );
+  }
+
+  function doCancelAppointmentError(msg: string, ex?: unknown) {
+    console.error(`fetch of /api/book/cancel_appointment failed: ${msg}`);
+    if (ex instanceof Error) {
+      throw ex;
+    }
+  }
+
+  function renderAppointments(): JSX.Element {
+    const links: JSX.Element[] = [];
+    for (const appointment of appointments) {
+      const hour_24 = appointment.hour_24;
+      const date_formatted = formatDateForAppointment(parseDate(appointment.date));
+      const hour_formatted = formatHour24ToHour12(hour_24);
+
+      links.push(
+        <li key={appointment.appointment_id}>
+          <span>
+            <p>
+              {date_formatted} {hour_formatted} - {appointment.slots_booked}/{appointment.capacity} slots filled
+            </p>
+            <button onClick={() => doCancelAppointment(appointment.appointment_id)}>Cancel</button>
+          </span>
+        </li>
+      );
+    }
+
+    return <ul>{links}</ul>;
+  }
+
   if (user === undefined) {
     return (
       <>
@@ -116,28 +186,9 @@ function Dashboard() {
       <SiteNavbar />
       <h1>Welcome, {user.name}</h1>
       <h2>Your Appointments</h2>
-      {renderAppointments(appointments)}
+      {renderAppointments()}
     </>
   );
 }
-
-const renderAppointments = (appointments: Appointment[]): JSX.Element => {
-  const links: JSX.Element[] = [];
-  for (const appointment of appointments) {
-    const hour_24 = appointment.hour_24;
-    const date_formatted = formatDateForAppointment(parseDate(appointment.date));
-    const hour_formatted = formatHour24ToHour12(hour_24);
-
-    links.push(
-      <li key={appointment.appointment_id}>
-        <p>
-          {date_formatted} {hour_formatted} - {appointment.slots_booked}/{appointment.capacity} slots filled
-        </p>
-      </li>
-    );
-  }
-
-  return <ul>{links}</ul>;
-};
 
 export default Dashboard;
