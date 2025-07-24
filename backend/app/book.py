@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify, Response
 from .database_setup import pool
 from psycopg.rows import dict_row
 from psycopg.errors import SerializationFailure
-from flask_jwt_extended import jwt_required, current_user
+from flask_jwt_extended import jwt_required, current_user, get_current_user
+from .user import User
 import time
 
 TRANSACTION_RETRY_AMOUNT = 3
@@ -205,3 +206,68 @@ def book_appointment():
             time.sleep(2 * tries)
 
     return Response(message="Failed to book appointment", status_code=409)
+
+
+@bp.delete("/cancel_appointment")
+@jwt_required()
+def cancel_appointment():
+    json: dict | None = request.get_json()
+    if json is None:
+        return Response(
+            response="Didn't send JSON to cancel_appointment DELETE request", status=400
+        )
+    if not "appointment_id" in json:
+        return Response(
+            response="Appointment ID not present in cancel_appointment DELETE request",
+            status=400,
+        )
+
+    user: User | None = get_current_user()
+
+    if user is None:
+        return Response(response="No valid user logged in", status=401)
+
+    appointment_id: int
+    try:
+        appointment_id = int(json["appointment_id"])
+    except ValueError as e:
+        print(str(e))
+        return Response(
+            response="Invalid appointment ID sent to cancel_appointment DELETE request"
+        )
+
+    if appointment_id < 1:
+        return Response(
+            response="Invalid appointment ID sent to cancel_appointment DELETE request"
+        )
+
+    with pool.connection() as conn:
+        cur = conn.cursor()
+
+        cur.execute(
+            """
+            SELECT *
+            FROM Bookings
+            WHERE userID = %(user_id)s AND appointmentID = %(appointment_id)s;
+            """,
+            {"user_id": user.user_id, "appointment_id": appointment_id},
+        )
+
+        record = cur.fetchone()
+
+        if record is None:
+            return Response(
+                response="Tried to cancel appointment that wasn't booked", status=400
+            )
+
+        cur.execute(
+            """
+            DELETE FROM Bookings
+            WHERE userID = %(user_id)s AND appointmentID = %(appointment_id)s;
+            """,
+            {"user_id": user.user_id, "appointment_id": appointment_id},
+        )
+
+        return jsonify({"message": "Successfully cancelled appointment"})
+
+    return Response(response="Failed to cancel appointment", status=400)
