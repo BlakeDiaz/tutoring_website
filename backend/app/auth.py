@@ -83,7 +83,6 @@ def register():
         user = User(
             user_id=record.get("userid"),
             email=record.get("email"),
-            password_hashed=record.get("passwordsaltedhashed"),
         )
 
         response = jsonify({"message": "Successfully registered account!"})
@@ -132,10 +131,11 @@ def login():
         user = User(
             user_id=record.get("userid"),
             email=record.get("email"),
-            password_hashed=record.get("passwordsaltedhashed"),
         )
 
-        if checkpw(bytes(password, "utf-8"), user.password_hashed):
+        password_hashed = record.get("passwordsaltedhashed")
+
+        if checkpw(bytes(password, "utf-8"), password_hashed):
             response = jsonify({"message": "Login successful"})
             access_token = create_access_token(identity=user)
             set_access_cookies(response, access_token)

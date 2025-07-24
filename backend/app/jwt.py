@@ -32,5 +32,4 @@ def user_lookup_callback(_jwt_header, jwt_data):
     return User(
         user_id=record.get("userid"),
         email=record.get("email"),
-        password_hashed=record.get("passwordsaltedhashed"),
     )
