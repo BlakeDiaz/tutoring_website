@@ -22,6 +22,8 @@ def register():
         return Response(
             response="Didn't send JSON to register POST request", status=400
         )
+    if not "name" in json:
+        return Response(response="Name not present in login POST request", status=400)
     if not "email" in json:
         return Response(response="Email not present in login POST request", status=400)
     if not "password" in json:
@@ -29,8 +31,13 @@ def register():
             response="Password not present in login POST request", status=400
         )
 
-    emailinfo: ValidatedEmail
     password = json["password"]
+
+    name = json["name"]
+    if len(name) > 255:
+        return Response(response="Name must be at most 255 characters long", status=400)
+
+    emailinfo: ValidatedEmail
     try:
         emailinfo = validate_email(json["email"])
     except EmailNotValidError as e:
@@ -59,11 +66,12 @@ def register():
         cur.execute(
             """
             INSERT INTO Users
-            (email, passwordSaltedHashed)
+            (name, email, passwordSaltedHashed)
             VALUES
-            (%(email)s, %(password_hashed)s);
+            (%(name)s, %(email)s, %(password_hashed)s);
             """,
             {
+                "name": name,
                 "email": email,
                 "password_hashed": hashpw(bytes(password, "utf-8"), gensalt()),
             },
@@ -82,6 +90,7 @@ def register():
 
         user = User(
             user_id=record.get("userid"),
+            name=record.get("name"),
             email=record.get("email"),
         )
 
@@ -130,6 +139,7 @@ def login():
 
         user = User(
             user_id=record.get("userid"),
+            name=record.get("name"),
             email=record.get("email"),
         )
 

@@ -4,6 +4,7 @@ DROP TABLE AppointmentTimeSlots;
 
 CREATE TABLE Users (
     userID SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
     email VARCHAR(254) NOT NULL,
     passwordSaltedHashed BYTEA NOT NULL
 );

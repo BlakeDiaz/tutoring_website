@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
 
 function RegisterForm() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -11,11 +12,12 @@ function RegisterForm() {
   const [search_params, _setSearchParams] = useSearchParams();
 
   function doRegisterClick(): void {
-    if (email === "" || password === "") {
+    if (name === "" || email === "" || password === "") {
       return;
     }
 
     const body = {
+      name: name,
       email: email,
       password: password,
     };
@@ -53,6 +55,10 @@ function RegisterForm() {
       <SiteNavbar />
       <div>
         <h1>Sign Up</h1>
+        <label htmlFor="name">Name:</label>
+        <br />
+        <input type="text" id="name" name="name" required onChange={(evt) => setName(evt.target.value)} />
+        <br />
         <label htmlFor="email">Email Address:</label>
         <br />
         <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
