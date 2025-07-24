@@ -3,6 +3,8 @@ from flask_jwt_extended import (
     create_access_token,
     set_access_cookies,
     unset_jwt_cookies,
+    jwt_required,
+    get_current_user,
 )
 
 from .database_setup import pool
@@ -161,3 +163,13 @@ def logout():
     response = jsonify({"message": "Logout successful"})
     unset_jwt_cookies(response)
     return response
+
+
+@bp.get("/get_user_info")
+@jwt_required()
+def get_user_info():
+    user: User | None = get_current_user()
+    if user is None:
+        return Response(response="No valid user logged in", status=401)
+
+    return jsonify(user.format_to_dict_for_sending())
