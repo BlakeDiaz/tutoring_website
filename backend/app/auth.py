@@ -7,10 +7,91 @@ from flask_jwt_extended import (
 
 from .database_setup import pool
 from psycopg.rows import dict_row
-from bcrypt import checkpw
+from bcrypt import checkpw, hashpw, gensalt
 from .user import User
+from email_validator import validate_email, EmailNotValidError, ValidatedEmail
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
+
+
+@bp.post("/register")
+def register():
+    json: dict | None = request.get_json()
+
+    if json is None:
+        return Response(
+            response="Didn't send JSON to register POST request", status=400
+        )
+    if not "email" in json:
+        return Response(response="Email not present in login POST request", status=400)
+    if not "password" in json:
+        return Response(
+            response="Password not present in login POST request", status=400
+        )
+
+    emailinfo: ValidatedEmail
+    password = json["password"]
+    try:
+        emailinfo = validate_email(json["email"])
+    except EmailNotValidError as e:
+        print(str(e))
+        return Response(response=f"Invalid email address: {json["email"]}", status=400)
+
+    email = emailinfo.normalized
+
+    with pool.connection() as conn:
+        cur = conn.cursor(row_factory=dict_row)
+
+        cur.execute(
+            """
+            SELECT *
+            FROM Users
+            WHERE email = %(email)s;
+            """,
+            {"email": email},
+        )
+        record = cur.fetchone()
+        if record is not None:
+            return Response(
+                response=f"Account with email {email} already present", status=400
+            )
+
+        cur.execute(
+            """
+            INSERT INTO Users
+            (email, passwordSaltedHashed)
+            VALUES
+            (%(email)s, %(password_hashed)s);
+            """,
+            {
+                "email": email,
+                "password_hashed": hashpw(bytes(password, "utf-8"), gensalt()),
+            },
+        )
+
+        cur.execute(
+            """
+            SELECT *
+            FROM Users
+            WHERE email = %(email)s;
+            """,
+            {"email": email},
+        )
+
+        record = cur.fetchone()
+
+        user = User(
+            user_id=record.get("userid"),
+            email=record.get("email"),
+            password_hashed=record.get("passwordsaltedhashed"),
+        )
+
+        response = jsonify({"message": "Successfully registered account!"})
+        access_token = create_access_token(identity=user)
+        set_access_cookies(response, access_token)
+        return response
+
+    return Response(response="Miscellanious error registering account", status=400)
 
 
 @bp.post("/login")
