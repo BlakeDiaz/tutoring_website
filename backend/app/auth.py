@@ -23,12 +23,16 @@ def register():
             response="Didn't send JSON to register POST request", status=400
         )
     if not "name" in json:
-        return Response(response="Name not present in login POST request", status=400)
+        return Response(
+            response="Name not present in register POST request", status=400
+        )
     if not "email" in json:
-        return Response(response="Email not present in login POST request", status=400)
+        return Response(
+            response="Email not present in register POST request", status=400
+        )
     if not "password" in json:
         return Response(
-            response="Password not present in login POST request", status=400
+            response="Password not present in register POST request", status=400
         )
 
     password = json["password"]
@@ -107,9 +111,7 @@ def login():
     json: dict | None = request.get_json()
 
     if json is None:
-        return Response(
-            response="Didn't send JSON to register POST request", status=400
-        )
+        return Response(response="Didn't send JSON to login POST request", status=400)
     if not "email" in json:
         return Response(response="Email not present in login POST request", status=400)
     if not "password" in json:
