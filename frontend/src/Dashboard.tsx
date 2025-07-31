@@ -104,6 +104,10 @@ function Dashboard() {
   }
 
   function doCancelAppointment(appointment_id: number) {
+    if (!window.confirm("Are you sure that you want to cancel this appointment?")) {
+      return;
+    }
+
     setCancelledID(appointment_id);
 
     const body = { appointment_id };
