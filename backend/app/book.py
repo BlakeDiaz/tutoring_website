@@ -111,33 +111,33 @@ def get_user_appointments():
     return jsonify({"message": "Error occured"})
 
 
-@bp.post("/confirm_booking")
+@bp.post("/book_new_appointment")
 @jwt_required()
-def confirm_booking():
+def book_new_appointment():
     json: dict | None = request.get_json()
 
     if json is None:
         return Response(
-            response="Didn't send JSON to confirm_booking POST request", status=400
+            response="Didn't send JSON to book_new_appointment POST request", status=400
         )
     if not "appointment_id" in json:
         return Response(
-            response="Appointment ID not present in confirm_booking POST request",
+            response="Appointment ID not present in book_new_appointment POST request",
             status=400,
         )
     if not "subject" in json:
         return Response(
-            response="Subject not present in confirm_booking POST request",
+            response="Subject not present in book_new_appointment POST request",
             status=400,
         )
     if not "location" in json:
         return Response(
-            response="Location not present in confirm_booking POST request",
+            response="Location not present in book_new_appointment POST request",
             status=400,
         )
     if not "comments" in json:
         return Response(
-            response="Comments not present in confirm_booking POST request",
+            response="Comments not present in book_new_appointment POST request",
             status=400,
         )
 

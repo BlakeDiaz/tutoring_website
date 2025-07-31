@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
 
-function BookingConfirmationForm() {
+function BookNewAppointmentForm() {
   const [subject, setSubject] = useState("");
   const [location, setLocation] = useState("");
   const [comments, setComments] = useState("");
@@ -14,7 +14,7 @@ function BookingConfirmationForm() {
 
   // User is not logged in
   if (localStorage.getItem("logged_in") !== "true") {
-    const redirect_search_params = createRedirectSearchParams("/confirm_booking", search_params);
+    const redirect_search_params = createRedirectSearchParams("/book_new_appointment", search_params);
     navigate(`/login?${redirect_search_params.toString()}`);
   }
 
@@ -33,7 +33,7 @@ function BookingConfirmationForm() {
       location,
       comments,
     };
-    fetch("/api/book/confirm_booking", {
+    fetch("/api/book/book_new_appointment", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -54,7 +54,7 @@ function BookingConfirmationForm() {
       p.catch((ex) => doBookAppointmentError("400 response is not text", ex));
     } else if (res.status === 401) {
       // User is not logged in
-      const redirect_search_params = createRedirectSearchParams("/confirm_booking", search_params);
+      const redirect_search_params = createRedirectSearchParams("/book_new_appointment", search_params);
       navigate(`/login?${redirect_search_params.toString()}`);
     } else if (res.status === 409) {
       const p = res.text();
@@ -66,7 +66,7 @@ function BookingConfirmationForm() {
   }
 
   function doBookAppointmentError(msg: string, ex?: unknown): void {
-    console.error(`fetch of /api/book/confirm_booking failed: ${msg}`);
+    console.error(`fetch of /api/book/book_new_appointment failed: ${msg}`);
     if (ex instanceof Error) {
       throw ex;
     }
@@ -112,4 +112,4 @@ const renderError = (error: string): JSX.Element => {
   }
 };
 
-export default BookingConfirmationForm;
+export default BookNewAppointmentForm;

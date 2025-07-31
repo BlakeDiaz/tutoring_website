@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import App from "./App";
 import Calendar from "./Calendar";
 import AppointmentList from "./AppointmentList";
-import BookingConfirmationForm from "./BookingConfirmationForm";
+import BookNewAppointmentForm from "./BookNewAppointmentForm";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
 import RegisterForm from "./RegisterForm";
@@ -24,8 +24,8 @@ export const app_router = createBrowserRouter([
     ],
   },
   {
-    path: "/confirm_booking",
-    Component: BookingConfirmationForm,
+    path: "/book_new_appointment",
+    Component: BookNewAppointmentForm,
   },
   {
     path: "/book_existing_appointment",

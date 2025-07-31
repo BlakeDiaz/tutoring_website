@@ -1,14 +1,14 @@
 /*
 URL redirection is done with two search paramaters. The redirectTo paramater handles which route to redirect the user
-to. Example values include 'dashboard' and 'confirm_booking'. This is done, as opposed to a full URL, to prevent URL
-redirection attacks. The redirectParams paramater encodes the search paramaters passed to the redirectTo route. For
-example, 'confirm_booking' uses the 'appointmentID' search paramater to keep track of which appointment is being
+to. Example values include 'dashboard' and 'book_new_appointment'. This is done, as opposed to a full URL, to prevent
+URL redirection attacks. The redirectParams paramater encodes the search paramaters passed to the redirectTo route. For
+example, 'book_new_appointment' uses the 'appointmentID' search paramater to keep track of which appointment is being
 booked, so we need to store that for when the redirection occurs.
 */
 
 const whitelisted_redirects = new Set<string>();
 whitelisted_redirects.add(encodeURIComponent("/dashboard"));
-whitelisted_redirects.add(encodeURIComponent("/confirm_booking"));
+whitelisted_redirects.add(encodeURIComponent("/book_new_appointment"));
 whitelisted_redirects.add(encodeURIComponent("/book_existing_appointment"));
 
 /**

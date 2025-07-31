@@ -84,7 +84,7 @@ const renderAppointmentBookingLinks = (appointments: Appointment[]): JSX.Element
         <li key={appointment.appointment_id}>
           <Link
             to={{
-              pathname: "/confirm_booking",
+              pathname: "/book_new_appointment",
               search: `appointment_id=${encodeURIComponent(appointment.appointment_id)}`,
             }}
           >
