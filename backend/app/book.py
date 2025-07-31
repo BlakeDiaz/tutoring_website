@@ -16,7 +16,7 @@ def generate_confirmation_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
 
 
-@bp.route("/get_available_appointments")
+@bp.get("/get_available_appointments")
 def get_available_appointments():
     date = request.args.get("date")
 
