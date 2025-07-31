@@ -13,14 +13,17 @@ CREATE TABLE AppointmentTimeSlots (
     appointmentID SERIAL PRIMARY KEY,
     date DATE NOT NULL,
     hour24 INT NOT NULL,
-    capacity INT NOT NULL
+    capacity INT NOT NULL,
+    leaderUserID INT REFERENCES Users,
+    confirmationCode CHAR(6),
+    subject VARCHAR(512),
+    location VARCHAR(512)
 );
 
 /* TODO add building name here */
 CREATE TABLE Bookings (
     appointmentID INT REFERENCES AppointmentTimeSlots,
     userID INT REFERENCES Users,
-    subject VARCHAR(512) NOT NULL,
-    location VARCHAR(512) NOT NULL,
+    bookingTimestamp TIMESTAMP NOT NULL,
     comments VARCHAR(512) NOT NULL
 );

@@ -33,7 +33,7 @@ function BookingConfirmationForm() {
       location,
       comments,
     };
-    fetch("/api/book/book_appointment", {
+    fetch("/api/book/confirm_booking", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -66,7 +66,7 @@ function BookingConfirmationForm() {
   }
 
   function doBookAppointmentError(msg: string, ex?: unknown): void {
-    console.error(`fetch of /api/book/book_appointment failed: ${msg}`);
+    console.error(`fetch of /api/book/confirm_booking failed: ${msg}`);
     if (ex instanceof Error) {
       throw ex;
     }

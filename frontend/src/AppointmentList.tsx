@@ -79,18 +79,33 @@ const renderAppointmentBookingLinks = (appointments: Appointment[]): JSX.Element
     const hour_24 = appointment.hour_24;
     const hour_formatted = formatHour24ToHour12(hour_24);
 
-    links.push(
-      <li key={appointment.appointment_id}>
-        <Link
-          to={{
-            pathname: "/confirm_booking",
-            search: `appointment_id=${encodeURIComponent(appointment.appointment_id)}`,
-          }}
-        >
-          {hour_formatted}
-        </Link>
-      </li>
-    );
+    if (appointment.slots_booked === 0) {
+      links.push(
+        <li key={appointment.appointment_id}>
+          <Link
+            to={{
+              pathname: "/confirm_booking",
+              search: `appointment_id=${encodeURIComponent(appointment.appointment_id)}`,
+            }}
+          >
+            {hour_formatted}
+          </Link>
+        </li>
+      );
+    } else {
+      links.push(
+        <li key={appointment.appointment_id}>
+          <Link
+            to={{
+              pathname: "/book_existing_appointment",
+              search: `appointment_id=${encodeURIComponent(appointment.appointment_id)}`,
+            }}
+          >
+            {hour_formatted}
+          </Link>
+        </li>
+      );
+    }
   }
 
   return <ul>{links}</ul>;

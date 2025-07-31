@@ -7,6 +7,7 @@ export type Appointment = {
   hour_24: number;
   capacity: number;
   slots_booked: number;
+  leader_name: string;
 };
 
 export const parseAppointment = (data: unknown): Appointment => {
@@ -28,6 +29,9 @@ export const parseAppointment = (data: unknown): Appointment => {
   if (typeof data.slots_booked !== "number") {
     throw new Error(`data.slots_booked is not a number: ${typeof data.slots_booked}`);
   }
+  if (typeof data.leader_name !== "string") {
+    throw new Error(`data.leader_name is not a string: ${typeof data.leader_name}`);
+  }
 
   return {
     appointment_id: data.appointment_id,
@@ -35,6 +39,7 @@ export const parseAppointment = (data: unknown): Appointment => {
     hour_24: data.hour_24,
     capacity: data.capacity,
     slots_booked: data.slots_booked,
+    leader_name: data.leader_name,
   };
 };
 

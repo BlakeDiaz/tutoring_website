@@ -9,6 +9,7 @@ booked, so we need to store that for when the redirection occurs.
 const whitelisted_redirects = new Set<string>();
 whitelisted_redirects.add(encodeURIComponent("/dashboard"));
 whitelisted_redirects.add(encodeURIComponent("/confirm_booking"));
+whitelisted_redirects.add(encodeURIComponent("/book_existing_appointment"));
 
 /**
  * Returns whether a local route can be redirected to.
