@@ -66,7 +66,7 @@ def register():
         record = cur.fetchone()
         if record is not None:
             return Response(
-                response=f"Account with email {email} already present", status=400
+                response=f"Account with email {email} already present", status=409
             )
 
         cur.execute(
@@ -105,7 +105,7 @@ def register():
         set_access_cookies(response, access_token)
         return response
 
-    return Response(response="Miscellanious error registering account", status=400)
+    return Response(response="Error registering account", status=500)
 
 
 @bp.post("/login")

@@ -38,6 +38,10 @@ function RegisterForm() {
       const p = res.text();
       p.then(setError);
       p.catch((ex) => doRegisterError("400 response is not text", ex));
+    } else if (res.status === 409) {
+      const p = res.text();
+      p.then(setError);
+      p.catch((ex) => doRegisterError("409 response is not text", ex));
     } else {
       doRegisterError(`Bad status code: ${res.status}`);
     }

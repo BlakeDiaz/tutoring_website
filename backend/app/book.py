@@ -58,9 +58,12 @@ def get_available_appointments():
                 }
             )
 
-        return jsonify({"success": True, "appointments": appointments})
+        return jsonify({"appointments": appointments})
 
-    return jsonify({"success": False})
+    return Response(
+        response=f"Error finding appointments available for booking on date {date}",
+        status=500,
+    )
 
 
 @bp.get("/get_scheduled_appointments")
@@ -108,7 +111,9 @@ def get_user_appointments():
 
         return jsonify({"appointments": appointments})
 
-    return jsonify({"message": "Error occured"})
+    return Response(
+        response="Error finding list of scheduled appointments for user", status=500
+    )
 
 
 @bp.post("/book_new_appointment")
@@ -186,12 +191,13 @@ def book_new_appointment():
                 record = cur.fetchone()
                 appointment_is_valid = record.get("appointment_is_valid")
 
-                # If a clear appointment can't be found, don't book it
+                # Conflict error code is used here since if this error occurs it is likely that another person already
+                # booked this appointment before the request was processed
                 if not appointment_is_valid:
                     conn.rollback()
                     return Response(
                         message="Appointment does not exist or already has been booked",
-                        status=400,
+                        status=409,
                     )
 
                 # Now that we know there is a clear appointment, book it
@@ -236,7 +242,7 @@ def book_new_appointment():
             tries += 1
             time.sleep(2 * tries)
 
-    return Response(message="Failed to book appointment", status_code=409)
+    return Response(response="Failed to book appointment", status_code=500)
 
 
 @bp.post("/book_existing_appointment")
@@ -303,11 +309,14 @@ def book_existing_appointment():
                 capacity = record.get("capacity")
                 appointment_confirmation_code = record.get("confirmation_code")
 
-                # If there aren't enough slots, don't book the appointment
+                # Conflict error code is used here since if this error occurs it is likely that others fully booked the
+                # appointment before this request was processed, leading to slots_booked being at/exceeding capacity
                 if slots_booked >= capacity:
                     conn.rollback()
                     return Response(message="Appointment already full", status=409)
 
+                # Conflict error code is used here since if this error occurs it is likely that the other people who
+                # booked this appointment cancelled it, leading to slots_booked being 0
                 if slots_booked == 0:
                     conn.rollback()
                     return Response(
@@ -365,7 +374,7 @@ def book_existing_appointment():
             tries += 1
             time.sleep(2 * tries)
 
-    return Response(message="Failed to book appointment", status_code=409)
+    return Response(message="Failed to book appointment", status_code=500)
 
 
 @bp.delete("/cancel_appointment")
@@ -496,4 +505,4 @@ def cancel_appointment():
             tries += 1
             time.sleep(2 * tries)
 
-    return Response(response="Failed to cancel appointment", status=400)
+    return Response(response="Failed to cancel appointment", status=500)

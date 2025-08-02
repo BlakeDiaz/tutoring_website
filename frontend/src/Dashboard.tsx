@@ -70,10 +70,6 @@ function Dashboard() {
       const p = res.json();
       p.then(doGetScheduledAppointmentsJson);
       p.catch((ex) => doGetScheduledAppointmentsError("200 response is not JSON", ex));
-    } else if (res.status === 400) {
-      const p = res.text();
-      p.then(doGetScheduledAppointmentsError);
-      p.catch((ex) => doGetScheduledAppointmentsError("400 response is not text", ex));
     } else if (res.status === 401) {
       // User is not logged in
       const redirect_search_params = createRedirectSearchParams("/dashboard");

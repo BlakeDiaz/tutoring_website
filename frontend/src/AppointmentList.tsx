@@ -24,10 +24,6 @@ function AppointmentList() {
       const p = res.json();
       p.then(doGetAvailableAppointmentsJson);
       p.catch((ex) => doGetAvailableAppointmentsError("200 response is not JSON", ex));
-    } else if (res.status === 400) {
-      const p = res.text();
-      p.then(doGetAvailableAppointmentsError);
-      p.catch((ex) => doGetAvailableAppointmentsError("400 response is not text", ex));
     } else {
       doGetAvailableAppointmentsError(`Bad status code: ${res.status}`);
     }
@@ -36,13 +32,6 @@ function AppointmentList() {
   function doGetAvailableAppointmentsJson(data: unknown): void {
     if (!isRecord(data)) {
       throw new Error(`data is not a record: ${typeof data}`);
-    }
-    if (typeof data.success !== "boolean") {
-      throw new Error(`data.success is not a boolean: ${typeof data.success}`);
-    }
-    if (!data.success) {
-      // TODO more robust error handling
-      throw new Error(`data.success is not true: ${data.success}`);
     }
 
     const retrieved_appointments = parseAppointments(data.appointments);
