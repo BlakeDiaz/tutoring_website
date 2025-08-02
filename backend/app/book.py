@@ -80,7 +80,7 @@ def get_user_appointments():
                 FROM AppointmentTimeSlots ats
                 INNER JOIN Bookings b
                     ON ats.appointmentID = b.appointmentID
-                GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
+                GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity, ats.leaderUserID
             )
             SELECT sa.appointmentID AS appointment_id, sa.date AS date, sa.hour24 AS hour_24, sa.capacity AS capacity,
                    sa.slotsBooked AS slots_booked, u.name AS leader_name
