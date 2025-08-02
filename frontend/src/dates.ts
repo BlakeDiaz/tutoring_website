@@ -329,9 +329,11 @@ export const getCalendarDates = (date: Date, num_weeks: number): Array<Array<Dat
 };
 
 export const formatHour24ToHour12 = (hour_24: number): string => {
-  if (hour_24 < 13) {
+  if (hour_24 === 0) {
+    return "12:00 am";
+  } else if (hour_24 < 13) {
     return `${hour_24}:00 am`;
+  } else {
+    return `${hour_24 - 12}:00 pm`;
   }
-
-  return `${hour_24 - 12}:00 pm`;
 };
