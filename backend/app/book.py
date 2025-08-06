@@ -4,6 +4,7 @@ from psycopg.rows import dict_row
 from psycopg.errors import SerializationFailure
 from flask_jwt_extended import jwt_required, current_user, get_current_user
 from .user import User
+from .validate import validate_date
 import time
 import random
 
@@ -19,6 +20,8 @@ def generate_confirmation_code():
 @bp.get("/get_available_appointments")
 def get_available_appointments():
     date = request.args.get("date")
+    if not validate_date(date):
+        return Response(response=f"Invalid date: {date}", status=400)
 
     with pool.connection() as conn:
         cur = conn.cursor(row_factory=dict_row)
