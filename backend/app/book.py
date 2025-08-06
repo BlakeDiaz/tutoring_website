@@ -296,6 +296,11 @@ def book_existing_appointment():
             response="Comments not present in book_existing_appointment POST request",
             status=400,
         )
+    if not "confirmation_code" in json:
+        return Response(
+            response="Confirmation code not present in book_existing_appointment POST request",
+            status=400,
+        )
 
     appointment_id: int
     try:
@@ -306,7 +311,7 @@ def book_existing_appointment():
             status=400,
         )
     comments = json["comments"]
-    confirmation_code = json.get("confirmation_code")
+    confirmation_code = json["confirmation_code"]
 
     if len(comments) > 512:
         return Response(
