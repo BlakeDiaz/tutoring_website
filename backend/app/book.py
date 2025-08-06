@@ -26,14 +26,14 @@ def get_available_appointments():
         cur.execute(
             """
             SELECT ats.appointmentID AS appointment_id, ats.date AS date, ats.hour24 AS hour_24,
-                   ats.capacity AS capacity, COUNT(b.userID) AS slots_booked, u.name AS leader_name
+                   ats.capacity AS capacity, COUNT(b.userID) AS slots_booked
             FROM AppointmentTimeSlots ats
             LEFT OUTER JOIN Bookings b
                 ON ats.appointmentID = b.appointmentID
             LEFT OUTER JOIN Users u
                 ON ats.leaderUserID = u.userID
             WHERE ats.date = %(date)s
-            GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity, u.name
+            GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
             HAVING ats.capacity - COUNT(b.userID) > 0
             ORDER BY ats.hour24 ASC;
             """,
@@ -43,10 +43,6 @@ def get_available_appointments():
         records = cur.fetchall()
         appointments = []
         for record in records:
-            leader_name = ""
-            if record.get("leader_name") is not None:
-                leader_name = record.get("leader_name")
-
             appointments.append(
                 {
                     "appointment_id": record.get("appointment_id"),
@@ -54,7 +50,6 @@ def get_available_appointments():
                     "hour_24": record.get("hour_24"),
                     "capacity": record.get("capacity"),
                     "slots_booked": record.get("slots_booked"),
-                    "leader_name": leader_name,
                 }
             )
 
@@ -76,20 +71,25 @@ def get_user_appointments():
             """
             WITH ScheduledAppointments AS (
                 SELECT ats.appointmentID AS appointmentID, ats.date AS date, ats.hour24 AS hour24,
-                       ats.capacity AS capacity, COUNT(b.userID) AS slotsBooked, ats.leaderUserID AS leaderUserID
+                       ats.capacity AS capacity, COUNT(b.userID) AS slotsBooked, ats.leaderUserID AS leaderUserID,
+                       ats.subject AS subject, ats.location AS location
                 FROM AppointmentTimeSlots ats
                 INNER JOIN Bookings b
                     ON ats.appointmentID = b.appointmentID
-                GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity, ats.leaderUserID
+                WHERE ats.appointmentID IN (SELECT appointmentID FROM Bookings WHERE userID = %(user_id)s)
+                GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity, ats.leaderUserID, ats.subject,
+                         ats.location
             )
             SELECT sa.appointmentID AS appointment_id, sa.date AS date, sa.hour24 AS hour_24, sa.capacity AS capacity,
-                   sa.slotsBooked AS slots_booked, u.name AS leader_name
+                   sa.slotsBooked AS slots_booked, u1.name AS leader_name, sa.subject AS subject,
+                   sa.location AS location, u2.name AS user_name, u2.email AS user_email, b.comments AS user_comments
             FROM ScheduledAppointments sa
             INNER JOIN Bookings b
                 ON sa.appointmentID = b.appointmentID
-            INNER JOIN Users u
-                ON sa.leaderUserID = u.userID
-            WHERE b.userID = %(user_id)s
+            INNER JOIN Users u1
+                ON sa.leaderUserID = u1.userID
+            INNER JOIN Users u2
+                ON b.userID = u2.userID
             ORDER BY sa.date ASC, sa.hour24 ASC;
             """,
             {"user_id": current_user.user_id},
@@ -97,7 +97,32 @@ def get_user_appointments():
 
         records = cur.fetchall()
         appointments = []
+        appointments_to_bookings: dict[int, list[dict[str, str]]] = dict()
         for record in records:
+            appointment_id = record.get("appointment_id")
+            if appointment_id in appointments_to_bookings:
+                appointments_to_bookings[appointment_id].append(
+                    {
+                        "name": record.get("user_name"),
+                        "email": record.get("user_email"),
+                        "comments": record.get("user_comments"),
+                    }
+                )
+            else:
+                appointments_to_bookings[appointment_id] = [
+                    {
+                        "name": record.get("user_name"),
+                        "email": record.get("user_email"),
+                        "comments": record.get("user_comments"),
+                    }
+                ]
+
+        seen: set[int] = set()
+        for record in records:
+            if record.get("appointment_id") in seen:
+                continue
+            seen.add(record.get("appointment_id"))
+
             appointments.append(
                 {
                     "appointment_id": record.get("appointment_id"),
@@ -106,6 +131,9 @@ def get_user_appointments():
                     "capacity": record.get("capacity"),
                     "slots_booked": record.get("slots_booked"),
                     "leader_name": record.get("leader_name"),
+                    "subject": record.get("subject"),
+                    "location": record.get("location"),
+                    "bookings": appointments_to_bookings[record.get("appointment_id")],
                 }
             )
 

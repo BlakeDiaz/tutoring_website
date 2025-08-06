@@ -3,14 +3,14 @@ import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
 import { useNavigate } from "react-router";
 import { isRecord } from "./types";
-import { type Appointment, parseAppointments } from "./appointments";
+import { type DashboardAppointment, parseDashboardAppointments } from "./dashboard_appointments";
 import { parseDate, formatDateForAppointment, formatHour24ToHour12 } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { type User, parseUser } from "./users";
 
 function Dashboard() {
   const [user, setUser] = useState<User>();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<DashboardAppointment[]>([]);
   const [cancelledID, setCancelledID] = useState<number>();
   const navigate = useNavigate();
 
@@ -88,7 +88,7 @@ function Dashboard() {
     }
 
     // TODO more robust error handling
-    const retrieved_appointments = parseAppointments(data.appointments);
+    const retrieved_appointments = parseDashboardAppointments(data.appointments);
     setAppointments(retrieved_appointments);
   }
 
