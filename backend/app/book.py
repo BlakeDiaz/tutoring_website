@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, Response
 from .database_setup import pool
 from psycopg.rows import dict_row
 from psycopg.errors import SerializationFailure
-from flask_jwt_extended import jwt_required, current_user, get_current_user
+from flask_jwt_extended import jwt_required, get_current_user
 from .user import User
 from .validate import validate_date
 import time
@@ -67,6 +67,10 @@ def get_available_appointments():
 @bp.get("/get_scheduled_appointments")
 @jwt_required()
 def get_user_appointments():
+    user: User | None = get_current_user()
+    if user is None:
+        return Response(message="Permission denied", status=401)
+
     with pool.connection() as conn:
         cur = conn.cursor(row_factory=dict_row)
 
@@ -95,7 +99,7 @@ def get_user_appointments():
                 ON b.userID = u2.userID
             ORDER BY sa.date ASC, sa.hour24 ASC;
             """,
-            {"user_id": current_user.user_id},
+            {"user_id": user.user_id},
         )
 
         records = cur.fetchall()
@@ -150,6 +154,10 @@ def get_user_appointments():
 @bp.post("/book_new_appointment")
 @jwt_required()
 def book_new_appointment():
+    user: User | None = get_current_user()
+    if user is None:
+        return Response(message="Permission denied", status=401)
+
     json: dict | None = request.get_json()
 
     if json is None:
@@ -241,7 +249,7 @@ def book_new_appointment():
                     """,
                     {
                         "appointment_id": appointment_id,
-                        "user_id": current_user.user_id,
+                        "user_id": user.user_id,
                         "comments": comments,
                     },
                 )
@@ -255,7 +263,7 @@ def book_new_appointment():
                     WHERE appointmentID = %(appointment_id)s;
                     """,
                     {
-                        "leader_user_id": current_user.user_id,
+                        "leader_user_id": user.user_id,
                         "confirmation_code": generate_confirmation_code(),
                         "subject": subject,
                         "location": location,
@@ -279,6 +287,10 @@ def book_new_appointment():
 @bp.post("/book_existing_appointment")
 @jwt_required()
 def book_existing_appointment():
+    user: User | None = get_current_user()
+    if user is None:
+        return Response(message="Permission denied", status=401)
+
     json: dict | None = request.get_json()
 
     if json is None:
@@ -375,7 +387,7 @@ def book_existing_appointment():
                     WHERE b.appointmentID = %(appointment_id)s
                       AND b.userID = %(user_id)s;
                     """,
-                    {"appointment_id": appointment_id, "user_id": current_user.user_id},
+                    {"appointment_id": appointment_id, "user_id": user.user_id},
                 )
 
                 record = cur.fetchone()
@@ -395,7 +407,7 @@ def book_existing_appointment():
                     """,
                     {
                         "appointment_id": appointment_id,
-                        "user_id": current_user.user_id,
+                        "user_id": user.user_id,
                         "comments": comments,
                     },
                 )
@@ -416,6 +428,10 @@ def book_existing_appointment():
 @bp.delete("/cancel_appointment")
 @jwt_required()
 def cancel_appointment():
+    user: User | None = get_current_user()
+    if user is None:
+        return Response(response="Permission denied", status=401)
+
     json: dict | None = request.get_json()
     if json is None:
         return Response(
@@ -426,11 +442,6 @@ def cancel_appointment():
             response="Appointment ID not present in cancel_appointment DELETE request",
             status=400,
         )
-
-    user: User | None = get_current_user()
-
-    if user is None:
-        return Response(response="No valid user logged in", status=401)
 
     appointment_id: int
     try:
