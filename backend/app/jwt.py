@@ -2,7 +2,6 @@ from flask_jwt_extended import JWTManager
 from sqlalchemy import text
 from .user import User
 from .db import db
-from psycopg.rows import dict_row
 
 jwt = JWTManager()
 
