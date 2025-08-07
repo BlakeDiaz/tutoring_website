@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, Response
-from .database_setup import pool
-from psycopg.rows import dict_row
+from sqlalchemy import text
+from .db import db
 from psycopg.errors import SerializationFailure
 from flask_jwt_extended import jwt_required, get_current_user
 from .user import User
@@ -23,45 +23,42 @@ def get_available_appointments():
     if not validate_date(date):
         return Response(response=f"Invalid date: {date}", status=400)
 
-    with pool.connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
-
-        cur.execute(
+    records = (
+        db.session.execute(
+            text(
+                """
+                SELECT ats.appointmentID AS appointment_id, ats.date AS date, ats.hour24 AS hour_24,
+                       ats.capacity AS capacity, COUNT(b.userID) AS slots_booked
+                FROM AppointmentTimeSlots ats
+                LEFT OUTER JOIN Bookings b
+                    ON ats.appointmentID = b.appointmentID
+                LEFT OUTER JOIN Users u
+                    ON ats.leaderUserID = u.userID
+                WHERE ats.date = :date
+                GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
+                HAVING ats.capacity - COUNT(b.userID) > 0
+                ORDER BY ats.hour24 ASC;
             """
-            SELECT ats.appointmentID AS appointment_id, ats.date AS date, ats.hour24 AS hour_24,
-                   ats.capacity AS capacity, COUNT(b.userID) AS slots_booked
-            FROM AppointmentTimeSlots ats
-            LEFT OUTER JOIN Bookings b
-                ON ats.appointmentID = b.appointmentID
-            LEFT OUTER JOIN Users u
-                ON ats.leaderUserID = u.userID
-            WHERE ats.date = %(date)s
-            GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
-            HAVING ats.capacity - COUNT(b.userID) > 0
-            ORDER BY ats.hour24 ASC;
-            """,
+            ),
             {"date": date},
         )
-
-        records = cur.fetchall()
-        appointments = []
-        for record in records:
-            appointments.append(
-                {
-                    "appointment_id": record.get("appointment_id"),
-                    "date": str(record.get("date")),
-                    "hour_24": record.get("hour_24"),
-                    "capacity": record.get("capacity"),
-                    "slots_booked": record.get("slots_booked"),
-                }
-            )
-
-        return jsonify({"appointments": appointments})
-
-    return Response(
-        response=f"Error finding appointments available for booking on date {date}",
-        status=500,
+        .mappings()
+        .fetchall()
     )
+
+    appointments = []
+    for record in records:
+        appointments.append(
+            {
+                "appointment_id": record.get("appointment_id"),
+                "date": str(record.get("date")),
+                "hour_24": record.get("hour_24"),
+                "capacity": record.get("capacity"),
+                "slots_booked": record.get("slots_booked"),
+            }
+        )
+
+    return jsonify({"appointments": appointments})
 
 
 @bp.get("/get_scheduled_appointments")
@@ -71,19 +68,18 @@ def get_user_appointments():
     if user is None:
         return Response(message="Permission denied", status=401)
 
-    with pool.connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
-
-        cur.execute(
-            """
-            WITH ScheduledAppointments AS (
+    records = (
+        db.session.execute(
+            text(
+                """
+                WITH ScheduledAppointments AS (
                 SELECT ats.appointmentID AS appointmentID, ats.date AS date, ats.hour24 AS hour24,
                        ats.capacity AS capacity, COUNT(b.userID) AS slotsBooked, ats.leaderUserID AS leaderUserID,
                        ats.subject AS subject, ats.location AS location
                 FROM AppointmentTimeSlots ats
                 INNER JOIN Bookings b
                     ON ats.appointmentID = b.appointmentID
-                WHERE ats.appointmentID IN (SELECT appointmentID FROM Bookings WHERE userID = %(user_id)s)
+                WHERE ats.appointmentID IN (SELECT appointmentID FROM Bookings WHERE userID = :user_id)
                 GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity, ats.leaderUserID, ats.subject,
                          ats.location
             )
@@ -98,57 +94,56 @@ def get_user_appointments():
             INNER JOIN Users u2
                 ON b.userID = u2.userID
             ORDER BY sa.date ASC, sa.hour24 ASC;
-            """,
+            """
+            ),
             {"user_id": user.user_id},
         )
+        .mappings()
+        .fetchall()
+    )
 
-        records = cur.fetchall()
-        appointments = []
-        appointments_to_bookings: dict[int, list[dict[str, str]]] = dict()
-        for record in records:
-            appointment_id = record.get("appointment_id")
-            if appointment_id in appointments_to_bookings:
-                appointments_to_bookings[appointment_id].append(
-                    {
-                        "name": record.get("user_name"),
-                        "email": record.get("user_email"),
-                        "comments": record.get("user_comments"),
-                    }
-                )
-            else:
-                appointments_to_bookings[appointment_id] = [
-                    {
-                        "name": record.get("user_name"),
-                        "email": record.get("user_email"),
-                        "comments": record.get("user_comments"),
-                    }
-                ]
-
-        seen: set[int] = set()
-        for record in records:
-            if record.get("appointment_id") in seen:
-                continue
-            seen.add(record.get("appointment_id"))
-
-            appointments.append(
+    appointments = []
+    appointments_to_bookings: dict[int, list[dict[str, str]]] = dict()
+    for record in records:
+        appointment_id = record.get("appointment_id")
+        if appointment_id in appointments_to_bookings:
+            appointments_to_bookings[appointment_id].append(
                 {
-                    "appointment_id": record.get("appointment_id"),
-                    "date": str(record.get("date")),
-                    "hour_24": record.get("hour_24"),
-                    "capacity": record.get("capacity"),
-                    "slots_booked": record.get("slots_booked"),
-                    "leader_name": record.get("leader_name"),
-                    "subject": record.get("subject"),
-                    "location": record.get("location"),
-                    "bookings": appointments_to_bookings[record.get("appointment_id")],
+                    "name": record.get("user_name"),
+                    "email": record.get("user_email"),
+                    "comments": record.get("user_comments"),
                 }
             )
+        else:
+            appointments_to_bookings[appointment_id] = [
+                {
+                    "name": record.get("user_name"),
+                    "email": record.get("user_email"),
+                    "comments": record.get("user_comments"),
+                }
+            ]
 
-        return jsonify({"appointments": appointments})
+    seen: set[int] = set()
+    for record in records:
+        if record.get("appointment_id") in seen:
+            continue
+        seen.add(record.get("appointment_id"))
 
-    return Response(
-        response="Error finding list of scheduled appointments for user", status=500
-    )
+        appointments.append(
+            {
+                "appointment_id": record.get("appointment_id"),
+                "date": str(record.get("date")),
+                "hour_24": record.get("hour_24"),
+                "capacity": record.get("capacity"),
+                "slots_booked": record.get("slots_booked"),
+                "leader_name": record.get("leader_name"),
+                "subject": record.get("subject"),
+                "location": record.get("location"),
+                "bookings": appointments_to_bookings[record.get("appointment_id")],
+            }
+        )
+
+    return jsonify({"appointments": appointments})
 
 
 @bp.post("/book_new_appointment")
@@ -213,71 +208,81 @@ def book_new_appointment():
     tries = 0
     while tries < TRANSACTION_RETRY_AMOUNT:
         try:
-            with pool.connection() as conn:
-                cur = conn.cursor(row_factory=dict_row)
-                cur.execute(
-                    """
-                    SELECT COUNT(*) > 0 AS appointment_is_valid
-                    FROM AppointmentTimeSlots ats
-                    LEFT OUTER JOIN Bookings b
-                        ON ats.appointmentID = b.appointmentID
-                    WHERE ats.appointmentID = %(appointment_id)s
-                      AND b.userID IS NULL;
-                    """,
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT COUNT(*) > 0 AS appointment_is_valid
+                        FROM AppointmentTimeSlots ats
+                        LEFT OUTER JOIN Bookings b
+                            ON ats.appointmentID = b.appointmentID
+                        WHERE ats.appointmentID = :appointment_id
+                          AND b.userID IS NULL;
+                        """
+                    ),
                     {"appointment_id": appointment_id},
                 )
+                .mappings()
+                .fetchone()
+            )
 
-                record = cur.fetchone()
-                appointment_is_valid = record.get("appointment_is_valid")
+            appointment_is_valid = record.get("appointment_is_valid")
 
-                # Conflict error code is used here since if this error occurs it is likely that another person already
-                # booked this appointment before the request was processed
-                if not appointment_is_valid:
-                    conn.rollback()
-                    return Response(
-                        message="Appointment does not exist or already has been booked",
-                        status=409,
-                    )
+            # Conflict error code is used here since if this error occurs it is likely that another person already
+            # booked this appointment before the request was processed
+            if not appointment_is_valid:
+                db.session.rollback()
+                return Response(
+                    message="Appointment does not exist or already has been booked",
+                    status=409,
+                )
 
-                # Now that we know there is a clear appointment, book it
-                cur.execute(
+            # Now that we know there is a clear appointment, book it
+            db.session.execute(
+                text(
                     """
                     INSERT INTO Bookings
                     (appointmentID, userID, bookingTimestamp, comments)
                     VALUES
-                    (%(appointment_id)s, %(user_id)s, CURRENT_TIMESTAMP, %(comments)s);
-                    """,
-                    {
-                        "appointment_id": appointment_id,
-                        "user_id": user.user_id,
-                        "comments": comments,
-                    },
-                )
+                    (:appointment_id, :user_id, CURRENT_TIMESTAMP, :comments);
+                    """
+                ),
+                {
+                    "appointment_id": appointment_id,
+                    "user_id": user.user_id,
+                    "comments": comments,
+                },
+            )
 
-                # Assign the user as the current leader, and set the subject and location
-                cur.execute(
+            # Assign the user as the current leader, and set the subject and location
+            db.session.execute(
+                text(
                     """
                     UPDATE AppointmentTimeSlots
-                    SET leaderUserID = %(leader_user_id)s, confirmationCode = %(confirmation_code)s,
-                        subject = %(subject)s, location = %(location)s
-                    WHERE appointmentID = %(appointment_id)s;
-                    """,
-                    {
-                        "leader_user_id": user.user_id,
-                        "confirmation_code": generate_confirmation_code(),
-                        "subject": subject,
-                        "location": location,
-                        "appointment_id": appointment_id,
-                    },
-                )
+                    SET leaderUserID = :leader_user_id, confirmationCode = :confirmation_code,
+                        subject = :subject, location = :location
+                    WHERE appointmentID = :appointment_id;
+                    """
+                ),
+                {
+                    "leader_user_id": user.user_id,
+                    "confirmation_code": generate_confirmation_code(),
+                    "subject": subject,
+                    "location": location,
+                    "appointment_id": appointment_id,
+                },
+            )
 
-                return jsonify(
-                    {
-                        "message": "Successfully booked appointment",
-                    }
-                )
+            db.session.commit()
+
+            return jsonify(
+                {
+                    "message": "Successfully booked appointment",
+                }
+            )
 
         except SerializationFailure:
+            db.session.rollback()
             tries += 1
             time.sleep(2 * tries)
 
@@ -337,88 +342,98 @@ def book_existing_appointment():
     tries = 0
     while tries < TRANSACTION_RETRY_AMOUNT:
         try:
-            with pool.connection() as conn:
-                cur = conn.cursor(row_factory=dict_row)
-                cur.execute(
-                    """
-                    SELECT ats.capacity AS capacity, COUNT(b.userID) AS slots_booked,
-                           ats.leaderUserID AS leader_user_id, ats.confirmationCode AS confirmation_code
-                    FROM AppointmentTimeSlots ats
-                    LEFT OUTER JOIN Bookings b
-                        ON ats.appointmentID = b.appointmentID
-                    WHERE ats.appointmentID = %(appointment_id)s
-                    GROUP BY ats.appointmentID, ats.capacity;
-                    """,
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT ats.capacity AS capacity, COUNT(b.userID) AS slots_booked,
+                               ats.leaderUserID AS leader_user_id, ats.confirmationCode AS confirmation_code
+                        FROM AppointmentTimeSlots ats
+                        LEFT OUTER JOIN Bookings b
+                            ON ats.appointmentID = b.appointmentID
+                        WHERE ats.appointmentID = :appointment_id
+                        GROUP BY ats.appointmentID, ats.capacity;
+                        """
+                    ),
                     {"appointment_id": appointment_id},
                 )
+                .mappings()
+                .fetchone()
+            )
 
-                record = cur.fetchone()
-                slots_booked = record.get("slots_booked")
-                capacity = record.get("capacity")
-                appointment_confirmation_code = record.get("confirmation_code")
+            slots_booked = record.get("slots_booked")
+            capacity = record.get("capacity")
+            appointment_confirmation_code = record.get("confirmation_code")
 
-                # Conflict error code is used here since if this error occurs it is likely that others fully booked the
-                # appointment before this request was processed, leading to slots_booked being at/exceeding capacity
-                if slots_booked >= capacity:
-                    conn.rollback()
-                    return Response(message="Appointment already full", status=409)
+            # Conflict error code is used here since if this error occurs it is likely that others fully booked the
+            # appointment before this request was processed, leading to slots_booked being at/exceeding capacity
+            if slots_booked >= capacity:
+                db.session.rollback()
+                return Response(message="Appointment already full", status=409)
 
-                # Conflict error code is used here since if this error occurs it is likely that the other people who
-                # booked this appointment cancelled it, leading to slots_booked being 0
-                if slots_booked == 0:
-                    conn.rollback()
-                    return Response(
-                        message="Appointment is empty; new appointment should be booked",
-                        status=409,
-                    )
-
-                # If the confirmation codes don't match, don't book the appointment
-                if appointment_confirmation_code is not None:
-                    if confirmation_code != appointment_confirmation_code:
-                        conn.rollback()
-                        return Response(
-                            response="Incorrect confirmation code", status=401
-                        )
-
-                cur.execute(
-                    """
-                    SELECT COUNT(*) > 0 AS already_booked
-                    FROM Bookings b
-                    WHERE b.appointmentID = %(appointment_id)s
-                      AND b.userID = %(user_id)s;
-                    """,
-                    {"appointment_id": appointment_id, "user_id": user.user_id},
+            # Conflict error code is used here since if this error occurs it is likely that the other people who
+            # booked this appointment cancelled it, leading to slots_booked being 0
+            if slots_booked == 0:
+                db.session.rollback()
+                return Response(
+                    message="Appointment is empty; new appointment should be booked",
+                    status=409,
                 )
 
-                record = cur.fetchone()
+            # If the confirmation codes don't match, don't book the appointment
+            if appointment_confirmation_code is not None:
+                if confirmation_code != appointment_confirmation_code:
+                    db.session.rollback()
+                    return Response(response="Incorrect confirmation code", status=401)
 
-                # If the user has already booked the appointment, don't book another slot
-                if record != None and record.get("already_booked"):
-                    conn.rollback()
-                    return Response("Already booked this appointment", status=409)
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT COUNT(*) > 0 AS already_booked
+                        FROM Bookings b
+                        WHERE b.appointmentID = :appointment_id
+                          AND b.userID = :user_id;
+                        """
+                    ),
+                    {"appointment_id": appointment_id, "user_id": user.user_id},
+                )
+                .mappings()
+                .fetchone()
+            )
 
-                # Now that we know there's enough slots, reserve it
-                cur.execute(
+            # If the user has already booked the appointment, don't book another slot
+            if record != None and record.get("already_booked"):
+                db.session.rollback()
+                return Response("Already booked this appointment", status=409)
+
+            # Now that we know there's enough slots, reserve it
+            db.session.execute(
+                text(
                     """
                     INSERT INTO Bookings
                     (appointmentID, userID, bookingTimestamp, comments)
                     VALUES
-                    (%(appointment_id)s, %(user_id)s, CURRENT_TIMESTAMP, %(comments)s);
-                    """,
-                    {
-                        "appointment_id": appointment_id,
-                        "user_id": user.user_id,
-                        "comments": comments,
-                    },
-                )
+                    (:appointment_id, :user_id, CURRENT_TIMESTAMP, :comments);
+                    """
+                ),
+                {
+                    "appointment_id": appointment_id,
+                    "user_id": user.user_id,
+                    "comments": comments,
+                },
+            )
 
-                return jsonify(
-                    {
-                        "message": "Successfully booked appointment",
-                    }
-                )
+            db.session.commit()
+
+            return jsonify(
+                {
+                    "message": "Successfully booked appointment",
+                }
+            )
 
         except SerializationFailure:
+            db.session.rollback()
             tries += 1
             time.sleep(2 * tries)
 
@@ -460,95 +475,115 @@ def cancel_appointment():
     tries = 0
     while tries < TRANSACTION_RETRY_AMOUNT:
         try:
-            with pool.connection() as conn:
-                cur = conn.cursor(row_factory=dict_row)
-
-                cur.execute(
-                    """
-                    SELECT *
-                    FROM Bookings
-                    WHERE userID = %(user_id)s AND appointmentID = %(appointment_id)s;
-                    """,
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT *
+                        FROM Bookings
+                        WHERE userID = :user_id AND appointmentID = :appointment_id;
+                        """
+                    ),
                     {"user_id": user.user_id, "appointment_id": appointment_id},
                 )
+                .mappings()
+                .fetchone()
+            )
 
-                record = cur.fetchone()
+            if record is None:
+                db.session.rollback()
+                return Response(
+                    response="Tried to cancel appointment that wasn't booked",
+                    status=400,
+                )
 
-                if record is None:
-                    return Response(
-                        response="Tried to cancel appointment that wasn't booked",
-                        status=400,
-                    )
-
-                cur.execute(
+            db.session.execute(
+                text(
                     """
                     DELETE FROM Bookings
-                    WHERE userID = %(user_id)s AND appointmentID = %(appointment_id)s;
+                    WHERE userID = :user_id AND appointmentID = :appointment_id;
                     """,
-                    {"user_id": user.user_id, "appointment_id": appointment_id},
-                )
+                ),
+                {"user_id": user.user_id, "appointment_id": appointment_id},
+            )
 
-                cur.execute(
-                    """
-                    SELECT leaderUserID
-                    FROM AppointmentTimeSlots
-                    WHERE appointmentID = %(appointment_id)s;
-                    """,
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT leaderUserID
+                        FROM AppointmentTimeSlots
+                        WHERE appointmentID = :appointment_id;
+                        """
+                    ),
                     {"appointment_id": appointment_id},
                 )
+                .mappings()
+                .fetchone()
+            )
 
-                record = cur.fetchone()
-                leader_user_id = record.get("leaderuserid")
+            leader_user_id = record.get("leaderuserid")
 
-                # If the user was not the leader, we can just return
-                if leader_user_id != user.user_id:
-                    return jsonify({"message": "Successfully cancelled appointment"})
+            # If the user was not the leader, we can just return
+            if leader_user_id != user.user_id:
+                db.session.commit()
+                return jsonify({"message": "Successfully cancelled appointment"})
 
-                # Otherwise, we need to set a new leader based on who booked the appointment the earliest
-                cur.execute(
-                    """
-                    SELECT userID AS user_id
-                    FROM Bookings
-                    WHERE appointmentID = %(appointment_id)s
-                      AND bookingTimestamp = (
-                            SELECT MIN(bookingTimestamp)
-                            FROM Bookings
-                            WHERE appointmentID = %(appointment_id)s
-                        )
-                    LIMIT 1;
-                    """,
+            # Otherwise, we need to set a new leader based on who booked the appointment the earliest
+            record = (
+                db.session.execute(
+                    text(
+                        """
+                        SELECT userID AS user_id
+                        FROM Bookings
+                        WHERE appointmentID = :appointment_id
+                          AND bookingTimestamp = (
+                                SELECT MIN(bookingTimestamp)
+                                FROM Bookings
+                                WHERE appointmentID = :appointment_id
+                            )
+                        LIMIT 1;
+                        """
+                    ),
                     {"appointment_id": appointment_id},
                 )
+                .mappings()
+                .fetchone()
+            )
 
-                record = cur.fetchone()
-
-                if record is None:
-                    # The leader was the last person to have booked that appointment, so NULL out the details fields
-                    cur.execute(
+            if record is None:
+                # The leader was the last person to have booked that appointment, so NULL out the details fields
+                db.session.execute(
+                    text(
                         """
                         UPDATE AppointmentTimeSlots
                         SET leaderUserID = NULL, confirmationCode = NULL, subject = NULL, location = NULL
-                        WHERE appointmentID = %(appointment_id)s; 
-                        """,
-                        {"appointment_id": appointment_id},
-                    )
-                else:
-                    # Set a new leader and confirmation code
-                    cur.execute(
+                        WHERE appointmentID = :appointment_id; 
+                        """
+                    ),
+                    {"appointment_id": appointment_id},
+                )
+            else:
+                # Set a new leader and confirmation code
+                db.session.execute(
+                    text(
                         """
                         UPDATE AppointmentTimeSlots
-                        SET leaderUserID = %(leader_user_id)s, confirmationCode = %(confirmation_code)s
-                        WHERE appointmentID = %(appointment_id)s; 
-                        """,
-                        {
-                            "leader_user_id": record.get("user_id"),
-                            "confirmation_code": generate_confirmation_code(),
-                            "appointment_id": appointment_id,
-                        },
-                    )
+                        SET leaderUserID = :leader_user_id, confirmationCode = :confirmation_code
+                        WHERE appointmentID = :appointment_id; 
+                        """
+                    ),
+                    {
+                        "leader_user_id": record.get("user_id"),
+                        "confirmation_code": generate_confirmation_code(),
+                        "appointment_id": appointment_id,
+                    },
+                )
 
-                return jsonify({"message": "Successfully cancelled appointment"})
+            db.session.commit()
+            return jsonify({"message": "Successfully cancelled appointment"})
         except SerializationFailure:
+            db.session.rollback()
             tries += 1
             time.sleep(2 * tries)
 

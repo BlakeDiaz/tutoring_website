@@ -1,13 +1,10 @@
 from flask import Flask
-from .database_setup import pool
 from .config import config
-import atexit
-
-atexit.register(pool.close)
 
 
 def create_app():
     app = Flask(__name__)
+
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     # TODO set to true in production
     app.config["JWT_COOKIE_SECURE"] = False
@@ -17,6 +14,16 @@ def create_app():
     from .jwt import jwt
 
     jwt.init_app(app)
+
+    db_config = config["credentials.database"]
+    app.config["SQLALCHEMY_DATABASE_URI"] = (
+        f"postgresql+psycopg://{db_config["user"]}:{db_config["password"]}"
+        + f"@{db_config["host"]}:{db_config["port"]}/{db_config["name"]}"
+    )
+
+    from .db import db
+
+    db.init_app(app)
 
     from . import book
     from . import auth

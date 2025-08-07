@@ -6,9 +6,8 @@ from flask_jwt_extended import (
     jwt_required,
     get_current_user,
 )
-
-from .database_setup import pool
-from psycopg.rows import dict_row
+from sqlalchemy import text
+from .db import db
 from bcrypt import checkpw, hashpw, gensalt
 from .user import User
 from email_validator import validate_email, EmailNotValidError, ValidatedEmail
@@ -52,60 +51,66 @@ def register():
 
     email = emailinfo.normalized
 
-    with pool.connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
-
-        cur.execute(
-            """
-            SELECT *
-            FROM Users
-            WHERE email = %(email)s;
-            """,
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT *
+                FROM Users
+                WHERE email = :email;
+                """
+            ),
             {"email": email},
         )
-        record = cur.fetchone()
-        if record is not None:
-            return Response(
-                response=f"Account with email {email} already present", status=409
-            )
+        .mappings()
+        .fetchone()
+    )
+    if record is not None:
+        return Response(
+            response=f"Account with email {email} already present", status=409
+        )
 
-        cur.execute(
+    db.session.execute(
+        text(
             """
             INSERT INTO Users
             (name, email, passwordSaltedHashed)
             VALUES
-            (%(name)s, %(email)s, %(password_hashed)s);
-            """,
-            {
-                "name": name,
-                "email": email,
-                "password_hashed": hashpw(bytes(password, "utf-8"), gensalt()),
-            },
-        )
-
-        cur.execute(
+            (:name, :email, :password_hashed);
             """
-            SELECT *
-            FROM Users
-            WHERE email = %(email)s;
-            """,
+        ),
+        {
+            "name": name,
+            "email": email,
+            "password_hashed": hashpw(bytes(password, "utf-8"), gensalt()),
+        },
+    )
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT *
+                FROM Users
+                WHERE email = :email;
+                """
+            ),
             {"email": email},
         )
+        .mappings()
+        .fetchone()
+    )
 
-        record = cur.fetchone()
+    user = User(
+        user_id=record.get("userid"),
+        name=record.get("name"),
+        email=record.get("email"),
+    )
 
-        user = User(
-            user_id=record.get("userid"),
-            name=record.get("name"),
-            email=record.get("email"),
-        )
-
-        response = jsonify({"message": "Successfully registered account!"})
-        access_token = create_access_token(identity=user)
-        set_access_cookies(response, access_token)
-        return response
-
-    return Response(response="Error registering account", status=500)
+    db.session.commit()
+    response = jsonify({"message": "Successfully registered account!"})
+    access_token = create_access_token(identity=user)
+    set_access_cookies(response, access_token)
+    return response
 
 
 @bp.post("/login")
@@ -124,38 +129,36 @@ def login():
     email = json["email"]
     password = json["password"]
 
-    with pool.connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
-
-        cur.execute(
-            """
-            SELECT *
-            FROM Users
-            WHERE email = %(email)s;
-            """,
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT *
+                FROM Users
+                WHERE email = :email;
+                """
+            ),
             {"email": email},
         )
-        record = cur.fetchone()
-        if record is None:
-            return Response(
-                response=f"No account with email {email} present", status=400
-            )
+        .mappings()
+        .fetchone()
+    )
+    if record is None:
+        return Response(response=f"No account with email {email} present", status=400)
 
-        user = User(
-            user_id=record.get("userid"),
-            name=record.get("name"),
-            email=record.get("email"),
-        )
+    user = User(
+        user_id=record.get("userid"),
+        name=record.get("name"),
+        email=record.get("email"),
+    )
 
-        password_hashed = record.get("passwordsaltedhashed")
+    password_hashed = record.get("passwordsaltedhashed")
 
-        if checkpw(bytes(password, "utf-8"), password_hashed):
-            response = jsonify({"message": "Login successful"})
-            access_token = create_access_token(identity=user)
-            set_access_cookies(response, access_token)
-            return response
-
-    return Response(response="Incorrect email or password", status=400)
+    if checkpw(bytes(password, "utf-8"), password_hashed):
+        response = jsonify({"message": "Login successful"})
+        access_token = create_access_token(identity=user)
+        set_access_cookies(response, access_token)
+        return response
 
 
 @bp.post("/logout")

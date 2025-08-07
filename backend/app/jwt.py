@@ -1,6 +1,7 @@
 from flask_jwt_extended import JWTManager
+from sqlalchemy import text
 from .user import User
-from .database_setup import pool
+from .db import db
 from psycopg.rows import dict_row
 
 jwt = JWTManager()
@@ -14,20 +15,23 @@ def user_identity_lookup(user):
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
-    with pool.connection() as conn:
-        cur = conn.cursor(row_factory=dict_row)
-
-        cur.execute(
-            """
-            SELECT *
-            FROM Users
-            WHERE userID = %(user_id)s;
-            """,
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT *
+                FROM Users
+                WHERE userID = :user_id;
+                """
+            ),
             {"user_id": identity},
         )
-        record = cur.fetchone()
-        if record is None:
-            return None
+        .mappings()
+        .fetchone()
+    )
+
+    if record is None:
+        return None
 
     return User(
         user_id=record.get("userid"),
