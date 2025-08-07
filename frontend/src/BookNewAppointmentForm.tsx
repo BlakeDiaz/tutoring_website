@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import SiteNavbar from "./SiteNavbar";
 import { useNavigate, useSearchParams } from "react-router";
 import { getCookie } from "./cookies";
@@ -12,11 +12,13 @@ function BookNewAppointmentForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // User is not logged in
-  if (localStorage.getItem("logged_in") !== "true") {
-    const redirect_search_params = createRedirectSearchParams("/book_new_appointment", search_params);
-    navigate(`/login?${redirect_search_params.toString()}`);
-  }
+  useEffect(() => {
+    // User is not logged in
+    if (localStorage.getItem("logged_in") !== "true") {
+      const redirect_search_params = createRedirectSearchParams("/book_new_appointment", search_params);
+      navigate(`/login?${redirect_search_params.toString()}`);
+    }
+  });
 
   function doCancelClick(): void {
     navigate("/book");
