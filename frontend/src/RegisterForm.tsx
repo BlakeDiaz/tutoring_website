@@ -32,6 +32,7 @@ function RegisterForm() {
 
   function doRegisterResp(res: Response): void {
     if (res.status === 200) {
+      localStorage.setItem("logged_in", "true");
       const redirect_url = getRedirectURL("/", search_params);
       navigate(redirect_url);
     } else if (res.status === 400) {
