@@ -160,6 +160,8 @@ def login():
         set_access_cookies(response, access_token)
         return response
 
+    return Response(response=f"Incorrect password", status=400)
+
 
 @bp.post("/logout")
 def logout():
