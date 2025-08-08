@@ -93,7 +93,7 @@ def get_user_appointments():
                 ON sa.leaderUserID = u1.userID
             INNER JOIN Users u2
                 ON b.userID = u2.userID
-            ORDER BY sa.date ASC, sa.hour24 ASC;
+            ORDER BY sa.date ASC, sa.hour24 ASC, u2.name ASC;
             """
             ),
             {"user_id": user.user_id},
