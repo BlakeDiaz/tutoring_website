@@ -66,7 +66,7 @@ def get_available_appointments():
 def get_user_appointments():
     user: User | None = get_current_user()
     if user is None:
-        return Response(message="Permission denied", status=401)
+        return Response(response="Permission denied", status=401)
 
     records = (
         db.session.execute(
@@ -151,7 +151,7 @@ def get_user_appointments():
 def book_new_appointment():
     user: User | None = get_current_user()
     if user is None:
-        return Response(message="Permission denied", status=401)
+        return Response(response="Permission denied", status=401)
 
     json: dict | None = request.get_json()
 
@@ -233,7 +233,7 @@ def book_new_appointment():
             if not appointment_is_valid:
                 db.session.rollback()
                 return Response(
-                    message="Appointment does not exist or already has been booked",
+                    response="Appointment does not exist or already has been booked",
                     status=409,
                 )
 
@@ -294,7 +294,7 @@ def book_new_appointment():
 def book_existing_appointment():
     user: User | None = get_current_user()
     if user is None:
-        return Response(message="Permission denied", status=401)
+        return Response(response="Permission denied", status=401)
 
     json: dict | None = request.get_json()
 
@@ -369,14 +369,14 @@ def book_existing_appointment():
             # appointment before this request was processed, leading to slots_booked being at/exceeding capacity
             if slots_booked >= capacity:
                 db.session.rollback()
-                return Response(message="Appointment already full", status=409)
+                return Response(response="Appointment already full", status=409)
 
             # Conflict error code is used here since if this error occurs it is likely that the other people who
             # booked this appointment cancelled it, leading to slots_booked being 0
             if slots_booked == 0:
                 db.session.rollback()
                 return Response(
-                    message="Appointment is empty; new appointment should be booked",
+                    response="Appointment is empty; new appointment should be booked",
                     status=409,
                 )
 
@@ -437,7 +437,7 @@ def book_existing_appointment():
             tries += 1
             time.sleep(2 * tries)
 
-    return Response(message="Failed to book appointment", status_code=500)
+    return Response(response="Failed to book appointment", status_code=500)
 
 
 @bp.delete("/cancel_appointment")
