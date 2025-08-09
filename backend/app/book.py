@@ -511,7 +511,7 @@ def cancel_appointment():
                 db.session.execute(
                     text(
                         """
-                        SELECT leaderUserID
+                        SELECT leaderUserID, confirmationCode
                         FROM AppointmentTimeSlots
                         WHERE appointmentID = :appointment_id;
                         """
@@ -523,6 +523,7 @@ def cancel_appointment():
             )
 
             leader_user_id = record.get("leaderuserid")
+            old_confirmation_code = record.get("confirmationcode")
 
             # If the user was not the leader, we can just return
             if leader_user_id != user.user_id:
@@ -565,6 +566,10 @@ def cancel_appointment():
                 )
             else:
                 # Set a new leader and confirmation code
+                new_confirmation_code = generate_confirmation_code()
+                while new_confirmation_code == old_confirmation_code:
+                    new_confirmation_code = generate_confirmation_code()
+
                 db.session.execute(
                     text(
                         """
@@ -575,7 +580,7 @@ def cancel_appointment():
                     ),
                     {
                         "leader_user_id": record.get("user_id"),
-                        "confirmation_code": generate_confirmation_code(),
+                        "confirmation_code": new_confirmation_code,
                         "appointment_id": appointment_id,
                     },
                 )
