@@ -1,4 +1,6 @@
-def validate_date(date_str: str) -> bool:
+def validate_date(date_str: str | None) -> bool:
+    if date_str is None:
+        return False
     if len(date_str) != 10:
         return False
     year_month_day = date_str.split("-")
@@ -24,7 +26,9 @@ def validate_date(date_str: str) -> bool:
     return True
 
 
-def validate_hour_24(hour_24_str: str) -> bool:
+def validate_hour_24(hour_24_str: str | None) -> bool:
+    if hour_24_str is None:
+        return False
     try:
         hour_24 = int(hour_24_str)
     except ValueError as e:
@@ -35,7 +39,9 @@ def validate_hour_24(hour_24_str: str) -> bool:
     return True
 
 
-def validate_capacity(capacity_str: str) -> bool:
+def validate_capacity(capacity_str: str | None) -> bool:
+    if capacity_str is None:
+        return False
     try:
         capacity = int(capacity_str)
     except ValueError as e:
