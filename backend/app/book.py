@@ -464,12 +464,14 @@ def cancel_appointment():
     except ValueError as e:
         print(str(e))
         return Response(
-            response="Invalid appointment ID sent to cancel_appointment DELETE request"
+            response="Invalid appointment ID sent to cancel_appointment DELETE request",
+            status=400,
         )
 
     if appointment_id < 1:
         return Response(
-            response="Invalid appointment ID sent to cancel_appointment DELETE request"
+            response="Invalid appointment ID sent to cancel_appointment DELETE request",
+            status=400,
         )
 
     tries = 0
