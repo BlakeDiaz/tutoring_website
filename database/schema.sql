@@ -1,4 +1,5 @@
 DROP TABLE Bookings;
+DROP TABLE UserRoles;
 DROP TABLE Users;
 DROP TABLE AppointmentTimeSlots;
 
@@ -7,6 +8,11 @@ CREATE TABLE Users (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(254) NOT NULL,
     passwordSaltedHashed BYTEA NOT NULL
+);
+
+CREATE TABLE UserRoles (
+    userID INT REFERENCES Users,
+    userRole VARCHAR(32) NOT NULL
 );
 
 CREATE TABLE AppointmentTimeSlots (
