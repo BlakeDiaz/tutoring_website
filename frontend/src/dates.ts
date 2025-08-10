@@ -292,6 +292,16 @@ export const getLastDayOfMonth = (month: number, year: number): number => {
   }
 };
 
+export const getLastDateOfMonth = (month: number, year: number): Date => {
+  const last_day = getLastDayOfMonth(month, year);
+
+  return { day: last_day, month, year };
+};
+
+export const getFirstDateOfMonth = (month: number, year: number): Date => {
+  return { day: 1, month, year };
+};
+
 /**
  * Gets a "calendar" of dates, starting from the week including 'date', and including num_weeks into the future.
  *
