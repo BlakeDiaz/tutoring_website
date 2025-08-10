@@ -10,10 +10,12 @@ def create_app(config: Config = DevelopmentConfig()):
     from .db import db
     from . import book
     from . import auth
+    from . import admin
 
     jwt.init_app(app)
     db.init_app(app)
     app.register_blueprint(book.bp)
     app.register_blueprint(auth.bp)
+    app.register_blueprint(admin.bp)
 
     return app
