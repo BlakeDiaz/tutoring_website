@@ -196,6 +196,28 @@ export const getNextDay = (date: Date): Date => {
 };
 
 /**
+ * Gets the date of the day immediately preceding the passed-in date.
+ *
+ * @param date Date started from.
+ * @returns The date of the previous day before 'date'.
+ */
+export const getPrevDay = (date: Date): Date => {
+  const day = date.day;
+  const month = date.month;
+  const year = date.year;
+
+  if (date.day > 1) {
+    return { day: day - 1, month, year };
+  }
+
+  const prev_month = month > 1 ? month - 1 : 12;
+  const prev_year = month > 1 ? year : year - 1;
+  const last_day_of_prev_month = getLastDayOfMonth(prev_month, prev_year);
+
+  return { day: last_day_of_prev_month, month: prev_month, year: prev_year };
+};
+
+/**
  * Gets the numerical day of the week of the given date in numerical format. Sunday is 0, Monday is 1, etc.
  * *
  * @returns Day of week.
@@ -300,6 +322,15 @@ export const getLastDateOfMonth = (month: number, year: number): Date => {
 
 export const getFirstDateOfMonth = (month: number, year: number): Date => {
   return { day: 1, month, year };
+};
+
+export const getFirstDateOfNextMonth = (month: number, year: number): Date => {
+  return getNextDay(getLastDateOfMonth(month, year));
+};
+
+export const getFirstDateOfPrevMonth = (month: number, year: number): Date => {
+  const last_date_of_prev_month = getPrevDay(getFirstDateOfMonth(month, year));
+  return getFirstDateOfMonth(last_date_of_prev_month.month, last_date_of_prev_month.year);
 };
 
 /**
