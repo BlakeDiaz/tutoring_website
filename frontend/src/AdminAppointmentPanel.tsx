@@ -14,7 +14,7 @@ import {
 } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 
-function AdminPanel() {
+function AdminAppointmentPanel() {
   const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [removedID, setRemoveledID] = useState<number>();
@@ -210,4 +210,4 @@ function AdminPanel() {
   );
 }
 
-export default AdminPanel;
+export default AdminAppointmentPanel;

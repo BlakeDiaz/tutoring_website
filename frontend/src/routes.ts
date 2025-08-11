@@ -7,7 +7,7 @@ import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
 import RegisterForm from "./RegisterForm";
 import BookExistingAppointmentForm from "./BookExistingAppointmentForm";
-import AdminPanel from "./AdminPanel";
+import AdminAppointmentPanel from "./AdminAppointmentPanel";
 
 export const app_router = createBrowserRouter([
   {
@@ -45,7 +45,7 @@ export const app_router = createBrowserRouter([
     Component: Dashboard,
   },
   {
-    path: "/admin_panel",
-    Component: AdminPanel,
+    path: "/admin_appointment_panel",
+    Component: AdminAppointmentPanel,
   },
 ]);
