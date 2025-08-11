@@ -9,15 +9,21 @@ import {
   formatHour24ToHour12,
   getDate,
   getFirstDateOfMonth,
+  getFirstDateOfNextMonth,
+  getFirstDateOfPrevMonth,
   getLastDateOfMonth,
+  getMonthString,
   parseDate,
+  type Date,
 } from "./dates";
 import AdminNavbar from "./AdminNavbar";
 
 function AdminAppointmentPanel() {
+  const today = getDate();
   const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
   const [removedID, setRemoveledID] = useState<number>();
+  const [start_date, setStartDate] = useState<Date>(getFirstDateOfMonth(today.month, today.year));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,9 +36,7 @@ function AdminAppointmentPanel() {
       .then(doIsAdminResp)
       .catch(doIsAdminError);
 
-    const today = getDate();
-    const start_date = getFirstDateOfMonth(today.month, today.year);
-    const end_date = getLastDateOfMonth(today.month, today.year);
+    const end_date = getLastDateOfMonth(start_date.month, start_date.year);
     const params = new URLSearchParams();
     params.set("start_date", dateToString(start_date));
     params.set("end_date", dateToString(end_date));
@@ -44,7 +48,7 @@ function AdminAppointmentPanel() {
     })
       .then(doGetAllAppointmentsResp)
       .catch(doGetAllAppointmentsError);
-  }, []);
+  }, [start_date]);
 
   function doIsAdminResp(res: Response) {
     if (res.status === 200) {
@@ -203,8 +207,29 @@ function AdminAppointmentPanel() {
   return (
     <>
       <AdminNavbar />
-      <h1>Welcome, admin!</h1>
-      <h2>This Month's Appointments</h2>
+      <h2>
+        {getMonthString(start_date.month)} {start_date.year} Appointments
+      </h2>
+      <span>
+        <button
+          onClick={() => {
+            const a = getFirstDateOfPrevMonth(start_date.month, start_date.year);
+            console.log(a);
+            setStartDate(a);
+          }}
+        >
+          Previous Month
+        </button>
+        <button
+          onClick={() => {
+            const a = getFirstDateOfNextMonth(start_date.month, start_date.year);
+            console.log(a);
+            setStartDate(a);
+          }}
+        >
+          Next Month
+        </button>
+      </span>
       {renderAppointments()}
     </>
   );
