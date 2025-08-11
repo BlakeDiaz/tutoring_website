@@ -9,6 +9,7 @@ import RegisterForm from "./RegisterForm";
 import BookExistingAppointmentForm from "./BookExistingAppointmentForm";
 import AdminAppointmentPanel from "./AdminAppointmentPanel";
 import AdminHome from "./AdminHome";
+import AdminAddAppointment from "./AdminAddAppointment";
 
 export const app_router = createBrowserRouter([
   {
@@ -52,5 +53,9 @@ export const app_router = createBrowserRouter([
   {
     path: "/admin_appointment_panel",
     Component: AdminAppointmentPanel,
+  },
+  {
+    path: "/admin_add_appointment",
+    Component: AdminAddAppointment,
   },
 ]);
