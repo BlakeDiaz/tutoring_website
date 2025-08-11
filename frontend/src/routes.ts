@@ -8,6 +8,7 @@ import Dashboard from "./Dashboard";
 import RegisterForm from "./RegisterForm";
 import BookExistingAppointmentForm from "./BookExistingAppointmentForm";
 import AdminAppointmentPanel from "./AdminAppointmentPanel";
+import AdminHome from "./AdminHome";
 
 export const app_router = createBrowserRouter([
   {
@@ -43,6 +44,10 @@ export const app_router = createBrowserRouter([
   {
     path: "/dashboard",
     Component: Dashboard,
+  },
+  {
+    path: "/admin",
+    Component: AdminHome,
   },
   {
     path: "/admin_appointment_panel",
