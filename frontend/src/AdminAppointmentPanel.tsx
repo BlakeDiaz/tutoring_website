@@ -72,7 +72,7 @@ function AdminAppointmentPanel() {
     } else if (res.status === 401) {
       navigate("/");
     } else {
-      doIsAdminError(`Bad status code: ${res.status}`);
+      doGetAllAppointmentsError(`Bad status code: ${res.status}`);
       navigate("/");
     }
   }
