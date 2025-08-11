@@ -12,7 +12,7 @@ import {
   getLastDateOfMonth,
   parseDate,
 } from "./dates";
-import SiteNavbar from "./SiteNavbar";
+import AdminNavbar from "./AdminNavbar";
 
 function AdminAppointmentPanel() {
   const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
@@ -202,7 +202,7 @@ function AdminAppointmentPanel() {
 
   return (
     <>
-      <SiteNavbar />
+      <AdminNavbar />
       <h1>Welcome, admin!</h1>
       <h2>This Month's Appointments</h2>
       {renderAppointments()}
