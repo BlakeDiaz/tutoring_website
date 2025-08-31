@@ -1,11 +1,14 @@
 import { Link } from "react-router";
+import "./SiteNavbar.css";
 
 function SiteNavbar() {
   return (
-    <nav>
+    <nav className="navbar">
       <ul>
         <li>
-          <Link to="/">Yucheng's Tutoring</Link>
+          <Link to="/" className="title">
+            Yucheng's Tutoring
+          </Link>
         </li>
         <li>
           <Link to="/book">Book</Link>
