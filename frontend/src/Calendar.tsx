@@ -2,6 +2,7 @@ import { type JSX } from "react";
 import { type Date, getDate, getCalendarDates, getAbbreviatedMonthString, dateToString } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { Link, Outlet } from "react-router";
+import "./Calendar.css";
 
 const WEEK_COUNT = 6;
 
@@ -33,7 +34,7 @@ const renderCalendar = (): JSX.Element => {
   }
 
   return (
-    <table>
+    <table className="calendar">
       <thead>
         <tr>
           <th>Sunday</th>
@@ -45,7 +46,7 @@ const renderCalendar = (): JSX.Element => {
           <th>Saturday</th>
         </tr>
       </thead>
-      <tbody className="thing">{rows}</tbody>
+      <tbody>{rows}</tbody>
     </table>
   );
 };
