@@ -1,3 +1,4 @@
+/* Calendar style */
 table.calendar {
     background-color: rgb(73, 78, 83);
     border: none;
@@ -48,4 +49,31 @@ table.calendar > tbody > tr > td > a {
 
 table.calendar > tbody > tr > td > a:hover {
     background-color: rgb(63, 64, 64);
+}
+
+/* Calendar and AppointmentList positioning */
+.calendar-wrapper {
+    overflow-x: auto;
+}
+
+.calendar-layout {
+    display: flex;
+    min-width: 1000px;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    justify-content: flex-start;
+}
+
+.calendar-pane {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 66.666%;
+    min-width: 0;
+}
+
+.appointment-list-pane {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 33.333%;
+    min-width: 0;
 }
