@@ -1,0 +1,21 @@
+.appointment-list > ul {
+    list-style-type: none;
+}
+.appointment-list > ul > li {
+    margin: 10px 0;
+}
+
+.appointment-list > ul > li > a {
+    width: 368.48px;
+    height: 100%;
+    display: block;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    border: 2px solid rgb(63, 64, 64);
+    background-color: rgb(63, 64, 64);
+}
+
+.appointment-list > ul > li > a:hover {
+    background-color: gray;
+}

@@ -5,6 +5,7 @@ import { type JSX } from "react";
 import { isRecord } from "./types";
 import { parseAppointments, type Appointment } from "./appointments";
 import { formatDateForAppointment } from "./dates";
+import "./AppointmentList.css";
 
 function AppointmentList() {
   const params = useParams();
@@ -46,8 +47,8 @@ function AppointmentList() {
   }
 
   return (
-    <div>
-      <h2>{date_formatted}</h2>
+    <div className="appointment-list">
+      <h1>{date_formatted}</h1>
       {renderAppointmentBookingLinks(appointments)}
     </div>
   );
