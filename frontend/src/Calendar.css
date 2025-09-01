@@ -3,6 +3,7 @@ table.calendar {
     background-color: rgb(73, 78, 83);
     border: none;
     border-collapse: collapse;
+    min-width: 880px;
     width: 100%;
     table-layout: fixed;
 }
@@ -58,7 +59,7 @@ table.calendar > tbody > tr > td > a:hover {
 
 .calendar-layout {
     display: flex;
-    min-width: 1000px;
+    min-width: 1320px;
     flex-wrap: nowrap;
     gap: 1rem;
     justify-content: flex-start;
@@ -67,13 +68,11 @@ table.calendar > tbody > tr > td > a:hover {
 .calendar-pane {
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: 66.666%;
-    min-width: 0;
+    flex-basis: max(66.666%, 880px);
 }
 
 .appointment-list-pane {
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: 33.333%;
-    min-width: 0;
+    flex-basis: max(33.333%, 440px);
 }
