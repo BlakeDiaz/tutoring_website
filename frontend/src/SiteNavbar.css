@@ -1,13 +1,18 @@
+nav.navbar {
+    white-space: nowrap;
+    overflow-x: auto;
+    width: 100%;
+    background-color: #333333;
+}
+
 nav.navbar > ul {
   list-style-type: none;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  background-color: #333333;
 }
 
 nav.navbar > ul > li {
-  float: left;
+  display: inline-block;
 }
 
 nav.navbar > ul > li > a {
