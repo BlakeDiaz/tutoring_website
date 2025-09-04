@@ -3,6 +3,7 @@ import SiteNavbar from "./SiteNavbar";
 import { useNavigate, useSearchParams } from "react-router";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
+import "./BookingForm.css";
 
 const confirmation_code_format_regex = /^\d\d\d\d\d\d$/;
 
@@ -89,25 +90,44 @@ function BookExistingAppointmentForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
+      <div className="booking-form">
         <h1>Confirm Your Appointment</h1>
-        <label htmlFor="comments">Any additional comments?</label>
-        <br />
-        <input type="text" id="comments" name="comments" onChange={(evt) => setComments(evt.target.value)} />
-        <br />
-        <label htmlFor="confirmation_code">Confirmation code</label>
-        <br />
-        <input
-          type="text"
-          id="confirmation_code"
-          name="confirmation_code"
-          onChange={(evt) => setConfirmationCode(evt.target.value)}
-        />
-        <br />
-        <span>
-          <button onClick={doCancelClick}>Cancel</button>
-          <button onClick={doBookExistingAppointmentClick}>Book Appointment</button>
-        </span>
+        <ul>
+          <li>
+            <div className="booking-input">
+              <label htmlFor="comments">Any additional comments?</label>
+              <br />
+              <textarea
+                rows={5}
+                cols={50}
+                id="comments"
+                name="comments"
+                placeholder="Enter comments here"
+                onChange={(evt) => setComments(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="booking-input">
+              <label htmlFor="confirmation_code">Confirmation Code</label>
+              <br />
+              <input
+                type="text"
+                id="confirmation_code"
+                name="confirmation_code"
+                required
+                placeholder="Enter confirmation code here"
+                onChange={(evt) => setConfirmationCode(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="booking-buttons">
+              <button onClick={doCancelClick}>Cancel</button>
+              <button onClick={doBookExistingAppointmentClick}>Book Appointment</button>
+            </div>
+          </li>
+        </ul>
         {renderError(error)}
       </div>
     </div>
