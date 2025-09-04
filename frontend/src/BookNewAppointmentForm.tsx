@@ -3,6 +3,7 @@ import SiteNavbar from "./SiteNavbar";
 import { useNavigate, useSearchParams } from "react-router";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
+import "./BookingForm.css";
 
 function BookNewAppointmentForm() {
   const [subject, setSubject] = useState("");
@@ -77,24 +78,60 @@ function BookNewAppointmentForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
+      <div className="booking-form">
         <h1>Confirm Your Appointment</h1>
-        <label htmlFor="subject">What subject would you like to cover?</label>
-        <br />
-        <input type="text" id="subject" name="subject" required onChange={(evt) => setSubject(evt.target.value)} />
-        <br />
-        <label htmlFor="location">Where on campus would you like to meet?</label>
-        <br />
-        <input type="text" id="location" name="location" required onChange={(evt) => setLocation(evt.target.value)} />
-        <br />
-        <label htmlFor="comments">Any additional comments?</label>
-        <br />
-        <input type="text" id="comments" name="comments" onChange={(evt) => setComments(evt.target.value)} />
-        <br />
-        <span>
-          <button onClick={doCancelClick}>Cancel</button>
-          <button onClick={doBookAppointmentClick}>Book Appointment</button>
-        </span>
+        <ul>
+          <li>
+            <div className="booking-input">
+              <label htmlFor="subject">What subject would you like to cover?</label>
+              <br />
+              <textarea
+                rows={5}
+                cols={50}
+                id="subject"
+                name="subject"
+                required
+                placeholder="Enter subject here"
+                onChange={(evt) => setSubject(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="booking-input">
+              <label htmlFor="location">Where on campus would you like to meet?</label>
+              <br />
+              <textarea
+                rows={5}
+                cols={50}
+                id="location"
+                name="location"
+                required
+                placeholder="Enter location here"
+                onChange={(evt) => setLocation(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="booking-input">
+              <label htmlFor="comments">Any additional comments?</label>
+              <br />
+              <textarea
+                rows={5}
+                cols={50}
+                id="comments"
+                name="comments"
+                placeholder="Enter comments here"
+                onChange={(evt) => setComments(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="booking-buttons">
+              <button onClick={doCancelClick}>Cancel</button>
+              <button onClick={doBookAppointmentClick}>Book Appointment</button>
+            </div>
+          </li>
+        </ul>
         {renderError(error)}
       </div>
     </div>
