@@ -13,7 +13,7 @@ function Calendar() {
       <div className="calendar-wrapper">
         <div className="calendar-layout">
           <div className="calendar-pane">{renderCalendar()}</div>
-          <div className="appointment-pane">
+          <div className="appointment-list-pane">
             <Outlet />
           </div>
         </div>
