@@ -63,16 +63,17 @@ table.calendar > tbody > tr > td > a:hover {
     flex-wrap: nowrap;
     gap: 1rem;
     justify-content: flex-start;
+    margin: 15px;
 }
 
 .calendar-pane {
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: max(66.666%, 880px);
+    flex-basis: 66.666%;
 }
 
 .appointment-list-pane {
     flex-grow: 0;
     flex-shrink: 0;
-    flex-basis: max(33.333%, 440px);
+    flex-basis: 33.333%;
 }
