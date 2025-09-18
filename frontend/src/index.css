@@ -28,7 +28,8 @@ html, body {
 }
 
 a.title {
-  font-weight: bold
+  font-weight: bold;
+  font-size: 18px;
 }
 
 p.form-error {
