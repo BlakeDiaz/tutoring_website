@@ -2,6 +2,7 @@ import { useState, type JSX } from "react";
 import SiteNavbar from "./SiteNavbar";
 import { useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
+import "./LoginForm.css";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,10 @@ function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [search_params, _setSearchParams] = useSearchParams();
+
+  function doCancelClick(): void {
+    navigate("/");
+  }
 
   function doLoginClick(): void {
     if (email === "" || password === "") {
@@ -52,18 +57,37 @@ function LoginForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
+      <div className="login-form">
         <h1>Log In</h1>
-        <label htmlFor="email">Email Address:</label>
-        <br />
-        <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
-        <br />
-        <label htmlFor="password">Password:</label>
-        <br />
-        <input type="text" id="password" name="password" required onChange={(evt) => setPassword(evt.target.value)} />
-        <br />
-        <button onClick={doLoginClick}>Login</button>
         {renderError(error)}
+        <ul>
+          <li>
+            <div className="login-input">
+              <label htmlFor="email">Email Address:</label>
+              <br />
+              <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
+            </div>
+          </li>
+          <li>
+            <div className="login-input">
+              <label htmlFor="password">Password:</label>
+              <br />
+              <input
+                type="text"
+                id="password"
+                name="password"
+                required
+                onChange={(evt) => setPassword(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="login-buttons">
+              <button onClick={doCancelClick}>Cancel</button>
+              <button onClick={doLoginClick}>Login</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
@@ -75,8 +99,7 @@ const renderError = (error: string): JSX.Element => {
   } else {
     return (
       <>
-        <br />
-        <p>{error}</p>
+        <p className="form-error">{error}</p>
       </>
     );
   }

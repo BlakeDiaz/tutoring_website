@@ -30,3 +30,11 @@ html, body {
 a.title {
   font-weight: bold
 }
+
+p.form-error {
+  margin-top: 10px;
+  justify-self: center;
+  background-color: rgb(218, 71, 71);
+  color: white;
+  width: 90%;
+}

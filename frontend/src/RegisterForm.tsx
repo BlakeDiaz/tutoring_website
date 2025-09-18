@@ -11,6 +11,10 @@ function RegisterForm() {
   const navigate = useNavigate();
   const [search_params, _setSearchParams] = useSearchParams();
 
+  function doCancelClick(): void {
+    navigate("/");
+  }
+
   function doRegisterClick(): void {
     if (name === "" || email === "" || password === "") {
       return;
@@ -58,22 +62,44 @@ function RegisterForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
+      <div className="login-form">
         <h1>Sign Up</h1>
-        <label htmlFor="name">Name:</label>
-        <br />
-        <input type="text" id="name" name="name" required onChange={(evt) => setName(evt.target.value)} />
-        <br />
-        <label htmlFor="email">Email Address:</label>
-        <br />
-        <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
-        <br />
-        <label htmlFor="password">Password:</label>
-        <br />
-        <input type="text" id="password" name="password" required onChange={(evt) => setPassword(evt.target.value)} />
-        <br />
-        <button onClick={doRegisterClick}>Register</button>
         {renderError(error)}
+        <ul>
+          <li>
+            <div className="login-input">
+              <label htmlFor="name">Name:</label>
+              <br />
+              <input type="text" id="name" name="name" required onChange={(evt) => setName(evt.target.value)} />
+            </div>
+          </li>
+          <li>
+            <div className="login-input">
+              <label htmlFor="email">Email Address:</label>
+              <br />
+              <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
+            </div>
+          </li>
+          <li>
+            <div className="login-input">
+              <label htmlFor="password">Password:</label>
+              <br />
+              <input
+                type="text"
+                id="password"
+                name="password"
+                required
+                onChange={(evt) => setPassword(evt.target.value)}
+              />
+            </div>
+          </li>
+          <li>
+            <div className="login-buttons">
+              <button onClick={doCancelClick}>Cancel</button>
+              <button onClick={doRegisterClick}>Register</button>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
@@ -85,8 +111,7 @@ const renderError = (error: string): JSX.Element => {
   } else {
     return (
       <>
-        <br />
-        <p>{error}</p>
+        <p className="form-error">{error}</p>
       </>
     );
   }
