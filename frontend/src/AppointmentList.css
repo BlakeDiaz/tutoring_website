@@ -10,6 +10,10 @@
     padding-left: 5px;
 }
 
+.appointment-list > h1 {
+    border-bottom: 3px solid gray;
+}
+
 .appointment-list > ul {
     list-style-type: none;
 }
