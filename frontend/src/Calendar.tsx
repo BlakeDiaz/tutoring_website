@@ -65,7 +65,7 @@ function Calendar() {
   return (
     <div>
       <SiteNavbar />
-      <h1>Book an Appointment</h1>
+      <h1 className="page-header">Book an Appointment</h1>
       <div className="calendar-wrapper">
         <div className="calendar-layout">
           <div className="calendar-pane">{renderCalendar()}</div>

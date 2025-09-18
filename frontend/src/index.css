@@ -22,6 +22,11 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.page-header {
+  font-size: 3em;
+  text-align: center;
+}
+
 a.title {
   font-weight: bold
 }

@@ -5,7 +5,7 @@ function App() {
   return (
     <div>
       <SiteNavbar />
-      <h1>Welcome to Yucheng's Tutoring!</h1>
+      <h1 className="page-header">Welcome to Yucheng's Tutoring!</h1>
     </div>
   );
 }
