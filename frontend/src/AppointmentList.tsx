@@ -48,7 +48,8 @@ function AppointmentList() {
 
   return (
     <div className="appointment-list">
-      <h1>{date_formatted}</h1>
+      <h1>Available Appointments</h1>
+      <h2>Date: {date_formatted}</h2>
       {renderAppointmentBookingLinks(appointments)}
     </div>
   );

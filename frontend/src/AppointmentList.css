@@ -1,3 +1,15 @@
+.appointment-list {
+    background-color: rgb(28 30 32);
+    border: 2px solid rgb(63, 64, 64);
+    justify-items: center;
+    justify-self: center;
+    width: 80%;
+    padding-top: 10px;
+    padding-bottom: 30px;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
 .appointment-list > ul {
     list-style-type: none;
 }
@@ -13,6 +25,7 @@
     color: white;
     text-decoration: none;
     border: 2px solid rgb(63, 64, 64);
+    border-radius: 8px;
     background-color: rgb(63, 64, 64);
 }
 
