@@ -1,11 +1,23 @@
 import { Link } from "react-router";
+import "./SiteNavbar.css";
+import { useState } from "react";
 
 function SiteNavbar() {
+  if (window.innerWidth >= 1200) {
+    return <SiteNavbarDesktop></SiteNavbarDesktop>;
+  } else {
+    return <SiteNavbarMobile></SiteNavbarMobile>;
+  }
+}
+
+function SiteNavbarDesktop() {
   return (
-    <nav>
+    <nav className="navbar-desktop">
       <ul>
         <li>
-          <Link to="/">Yucheng's Tutoring</Link>
+          <Link className="logo-link" to="/">
+            Yucheng's Tutoring
+          </Link>
         </li>
         <li>
           <Link to="/book">Book</Link>
@@ -24,6 +36,38 @@ function SiteNavbar() {
         </li>
       </ul>
     </nav>
+  );
+}
+
+function SiteNavbarMobile() {
+  const [show_links, setShowLinks] = useState(false);
+
+  function renderSubLinks() {
+    if (show_links) {
+      return (
+        <div>
+          <Link to="/book">Book</Link>
+          <Link to="/">About</Link>
+          <Link to="/login">Log In</Link>
+          <Link to="/register">Sign Up</Link>
+          <Link to="/dashboard">Dashboard</Link>
+        </div>
+      );
+    }
+
+    return <></>;
+  }
+
+  return (
+    <div className="navbar-mobile">
+      <Link className="logo-link" to="/">
+        Yucheng's Tutoring
+      </Link>
+      {renderSubLinks()}
+      <a className="icon" onClick={() => setShowLinks(!show_links)}>
+        <i className="fa fa-bars"></i>
+      </a>
+    </div>
   );
 }
 
