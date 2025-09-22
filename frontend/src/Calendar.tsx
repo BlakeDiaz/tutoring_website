@@ -1,9 +1,7 @@
 import { type JSX } from "react";
-import { type Date, getDate, getCalendarDates, getAbbreviatedMonthString, dateToString } from "./dates";
+import { type Date, getDate, getCalendarDatesForMonth, getAbbreviatedMonthString, dateToString } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { Link, Outlet } from "react-router";
-
-const WEEK_COUNT = 6;
 
 function Calendar() {
   return (
@@ -16,7 +14,8 @@ function Calendar() {
 }
 
 const renderCalendar = (): JSX.Element => {
-  const calendar_dates = getCalendarDates(getDate(), WEEK_COUNT);
+  const date = getDate();
+  const calendar_dates = getCalendarDatesForMonth(date.month, date.year);
 
   const rows: Array<JSX.Element> = [];
   for (let i = 0; i < calendar_dates.length; i++) {

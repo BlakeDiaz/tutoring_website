@@ -369,6 +369,44 @@ export const getCalendarDates = (date: Date, num_weeks: number): Array<Array<Dat
   return calendar;
 };
 
+/**
+ * Gets a "calendar" of dates, starting from the week including the first day of the month, and ending with the week
+ * including the last day of the month. The last few days of the previous month and/or the first few days of the next
+ * month may be included.
+ *
+ * @param month Month that the calendar is for.
+ * @param num_weeks Year that the calendar is for.
+ * @returns An array of weeks, with each week being an array containing the 7 dates in that week.
+ */
+export const getCalendarDatesForMonth = (month: number, year: number) => {
+  const day = 1;
+  const start_date = { day, month, year };
+  const end_date = getNextDay(getLastDateOfMonth(month, year));
+
+  const day_of_week = getDayOfWeek(start_date);
+  const prev_month = month === 1 ? 12 : month - 1;
+  const last_day_of_prev_month = getLastDayOfMonth(prev_month, year);
+
+  // Note - this math works specifically because day_of_week is 0-indexed.
+  const first_day_in_week = day - day_of_week;
+  let cur_day = first_day_in_week > 0 ? first_day_in_week : first_day_in_week + last_day_of_prev_month;
+  let cur_month = first_day_in_week > 0 ? month : prev_month;
+  let cur_year = first_day_in_week <= 0 && month == 1 ? year - 1 : year;
+  let cur_date = { day: cur_day, month: cur_month, year: cur_year };
+
+  const calendar: Array<Array<Date>> = [];
+  while (compareDates(cur_date, end_date) < 0) {
+    const week: Array<Date> = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(cur_date);
+      cur_date = getNextDay(cur_date);
+    }
+    calendar.push(week);
+  }
+
+  return calendar;
+};
+
 export const formatHour24ToHour12 = (hour_24: number): string => {
   if (hour_24 === 0) {
     return "12:00 am";
