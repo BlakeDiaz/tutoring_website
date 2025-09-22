@@ -1,7 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App";
 import Calendar from "./Calendar";
-import AppointmentList from "./AppointmentList";
 import BookNewAppointmentForm from "./BookNewAppointmentForm";
 import LoginForm from "./LoginForm";
 import Dashboard from "./Dashboard";
@@ -19,12 +18,6 @@ export const app_router = createBrowserRouter([
   {
     path: "/book",
     Component: Calendar,
-    children: [
-      {
-        path: ":date",
-        Component: AppointmentList,
-      },
-    ],
   },
   {
     path: "/book_new_appointment",

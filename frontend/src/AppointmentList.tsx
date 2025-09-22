@@ -1,66 +1,19 @@
-import { useEffect, useState } from "react";
-import { Link, useParams, type Params } from "react-router";
-import { type Date, dateToString, parseDate, formatHour24ToHour12 } from "./dates";
+import { Link } from "react-router";
+import { type Date, formatHour24ToHour12 } from "./dates";
 import { type JSX } from "react";
-import { isRecord } from "./types";
-import { parseAppointments, type Appointment } from "./appointments";
+import { type Appointment } from "./appointments";
 import { formatDateForAppointment } from "./dates";
 
-function AppointmentList() {
-  const params = useParams();
-  const date = getDateFromParams(params);
-  const date_formatted = formatDateForAppointment(date);
-
-  const initial_appointments: Appointment[] = [];
-  const [appointments, setAppointments] = useState(initial_appointments);
-
-  useEffect(() => {
-    const url = `/api/book/get_available_appointments?date=${encodeURIComponent(dateToString(date))}`;
-    fetch(url).then(doGetAvailableAppointmentsResp).catch(doGetAvailableAppointmentsError);
-  }, [params]);
-
-  function doGetAvailableAppointmentsResp(res: Response): void {
-    if (res.status === 200) {
-      const p = res.json();
-      p.then(doGetAvailableAppointmentsJson);
-      p.catch((ex) => doGetAvailableAppointmentsError("200 response is not JSON", ex));
-    } else {
-      doGetAvailableAppointmentsError(`Bad status code: ${res.status}`);
-    }
-  }
-
-  function doGetAvailableAppointmentsJson(data: unknown): void {
-    if (!isRecord(data)) {
-      throw new Error(`data is not a record: ${typeof data}`);
-    }
-
-    const retrieved_appointments = parseAppointments(data.appointments);
-    setAppointments(retrieved_appointments);
-  }
-
-  function doGetAvailableAppointmentsError(msg: string, ex?: unknown): void {
-    console.error(`fetch of /api/book/get_available_appointments failed: ${msg}`);
-    if (ex instanceof Error) {
-      throw ex;
-    }
-  }
+function AppointmentList(props: { date: Date; appointments: Appointment[] }) {
+  const date_formatted = formatDateForAppointment(props.date);
 
   return (
     <div>
       <h2>{date_formatted}</h2>
-      {renderAppointmentBookingLinks(appointments)}
+      {renderAppointmentBookingLinks(props.appointments)}
     </div>
   );
 }
-
-const getDateFromParams = (params: Readonly<Params<string>>): Date => {
-  const year_month_day = params.date;
-  if (year_month_day === undefined) {
-    throw new Error("Something went wrong getting the date in BookDate!");
-  }
-
-  return parseDate(year_month_day);
-};
 
 const renderAppointmentBookingLinks = (appointments: Appointment[]): JSX.Element => {
   const links: JSX.Element[] = [];

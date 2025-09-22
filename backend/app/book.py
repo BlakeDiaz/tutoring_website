@@ -19,9 +19,13 @@ def generate_confirmation_code():
 
 @bp.get("/get_available_appointments")
 def get_available_appointments():
-    date = request.args.get("date")
-    if not validate_date(date):
-        return Response(response=f"Invalid date: {date}", status=400)
+    start_date = request.args.get("start_date")
+    if not validate_date(start_date):
+        return Response(response=f"Invalid start date: {start_date}", status=400)
+
+    end_date = request.args.get("end_date")
+    if not validate_date(end_date):
+        return Response(response=f"Invalid enddate: {end_date}", status=400)
 
     records = (
         db.session.execute(
@@ -34,13 +38,14 @@ def get_available_appointments():
                     ON ats.appointmentID = b.appointmentID
                 LEFT OUTER JOIN Users u
                     ON ats.leaderUserID = u.userID
-                WHERE ats.date = :date
+                WHERE ats.date >= :start_date
+                  AND ats.date < :end_date
                 GROUP BY ats.appointmentID, ats.date, ats.hour24, ats.capacity
                 HAVING ats.capacity - COUNT(b.userID) > 0
                 ORDER BY ats.hour24 ASC;
-            """
+                """
             ),
-            {"date": date},
+            {"start_date": start_date, "end_date": end_date},
         )
         .mappings()
         .fetchall()
