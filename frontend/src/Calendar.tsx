@@ -3,19 +3,23 @@ import {
   type Date,
   getDate,
   getCalendarDatesForMonth,
-  getAbbreviatedMonthString,
   dateToString,
   getFirstDateOfMonth,
   getLastDateOfMonth,
   getNextDay,
+  getMonthString,
+  compareDates,
+  getFirstDateOfNextMonth,
+  getFirstDateOfPrevMonth,
 } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { isRecord } from "./types";
 import { parseAppointments, type Appointment } from "./appointments";
 import AppointmentList from "./AppointmentList";
+import "./Calendar.css";
 
 function Calendar() {
-  let date = getDate();
+  const [date, setDate] = useState<Date>(getDate());
 
   const [appointments_map, setAppointmentsMap] = useState<Map<string, Appointment[]>>();
   const [selected_date, setSelectedDate] = useState<Date>();
@@ -67,7 +71,6 @@ function Calendar() {
   }
 
   function renderCalendar(): JSX.Element {
-    const date = getDate();
     const calendar_dates = getCalendarDatesForMonth(date.month, date.year);
 
     const rows: Array<JSX.Element> = [];
@@ -78,8 +81,8 @@ function Calendar() {
         const disabled = cur_date.month !== date.month || !appointments_map?.has(dateToString(cur_date));
         row.push(
           <td key={dateToString(cur_date)}>
-            <button disabled={disabled} onClick={() => setSelectedDate(cur_date)}>
-              {formatDate(cur_date)}
+            <button disabled={disabled} className="calendar-button" onClick={() => setSelectedDate(cur_date)}>
+              {cur_date.day.toString()}
             </button>
           </td>
         );
@@ -87,21 +90,42 @@ function Calendar() {
       rows.push(<tr key={dateToString(calendar_dates[i][0])}>{row}</tr>);
     }
 
+    const prev_button_disabled = compareDates(date, getDate()) <= 0;
+
     return (
-      <table>
-        <thead>
-          <tr>
-            <th>Sunday</th>
-            <th>Monday</th>
-            <th>Tuesday</th>
-            <th>Wednesday</th>
-            <th>Thursday</th>
-            <th>Friday</th>
-            <th>Saturday</th>
-          </tr>
-        </thead>
-        <tbody className="thing">{rows}</tbody>
-      </table>
+      <div className="calendar-wrapper">
+        <div className="calendar">
+          <div className="calendar-header-wrapper">
+            <button
+              disabled={prev_button_disabled}
+              className="calendar-button"
+              onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}
+            >
+              {"<"}
+            </button>
+            <h2 className="calendar-header">
+              {getMonthString(date.month)} {date.year}
+            </h2>
+            <button className="calendar-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
+              {">"}
+            </button>
+          </div>
+          <table className="calendar-table">
+            <thead>
+              <tr>
+                <th>Sun</th>
+                <th>Mon</th>
+                <th>Tue</th>
+                <th>Wed</th>
+                <th>Thu</th>
+                <th>Fri</th>
+                <th>Sat</th>
+              </tr>
+            </thead>
+            <tbody className="thing">{rows}</tbody>
+          </table>
+        </div>
+      </div>
     );
   }
 
@@ -132,19 +156,5 @@ function Calendar() {
     </div>
   );
 }
-
-/**
- * Formats a date into <Abbreviated month name> <Day number> format.
- * For example, the date {day: 7, month: 3, year: 2024} would be formatted as "Apr 7".
- * @param date The date to be formatted.
- * @returns Formatted date as a string.
- */
-const formatDate = (date: Date): string => {
-  if (date.day === 1) {
-    return getAbbreviatedMonthString(date.month) + " " + date.day;
-  }
-
-  return date.day.toString();
-};
 
 export default Calendar;
