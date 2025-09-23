@@ -66,7 +66,7 @@ function RegisterForm() {
       <div className="form-wrapper">
         <div className="form">
           <h1 className="form-header">Sign Up</h1>
-          <FormError errorMessage={error}></FormError>
+          <FormError errorMessage={error} onCancelClick={() => setError("")}></FormError>
           <div className="form-input-wrapper">
             <label className="form-input-label" htmlFor="name">
               Name:

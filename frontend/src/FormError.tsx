@@ -1,12 +1,22 @@
 import "./Form.css";
 
-function FormError(props: { errorMessage: string }) {
+type FormErrorProps = {
+  errorMessage: string;
+  onCancelClick: () => void;
+};
+
+function FormError(props: FormErrorProps) {
   if (props.errorMessage === "") {
     return <></>;
   } else {
     return (
       <div className="form-error-wrapper">
-        <p className="form-error">{props.errorMessage}</p>
+        <div className="form-error">
+          <p className="form-error">{props.errorMessage}</p>
+          <button className="form-error-button" onClick={props.onCancelClick}>
+            ×
+          </button>
+        </div>
       </div>
     );
   }

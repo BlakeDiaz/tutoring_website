@@ -61,7 +61,7 @@ function LoginForm() {
       <div className="form-wrapper">
         <div className="form">
           <h1 className="form-header">Log In</h1>
-          <FormError errorMessage={error}></FormError>
+          <FormError errorMessage={error} onCancelClick={() => setError("")}></FormError>
           <div className="form-input-wrapper">
             <label className="form-input-label" htmlFor="password">
               Email Address

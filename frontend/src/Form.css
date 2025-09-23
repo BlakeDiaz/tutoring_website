@@ -97,8 +97,13 @@ button.primary-button {
     width: 100%;
 }
 
-p.form-error {
+.form-error {
     width: 80%;
+    position: relative;
+}
+
+p.form-error {
+    width: 100%;
     background-color: rgba(235, 0, 0, 0.9);
     color: white;
     padding-top: 10px;
@@ -108,6 +113,16 @@ p.form-error {
     text-indent: 5px;
     text-align: center;
     border-radius: 10px;
+}
+
+button.form-error-button {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: white;
 }
 
 .form-redirect-wrapper {
