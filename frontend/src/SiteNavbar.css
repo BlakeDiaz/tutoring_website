@@ -22,6 +22,7 @@ nav.navbar-desktop > ul > li > a {
   font-size: 17px;
   display: block;
   text-align: center;
+  transition: background-color 0.3s ease;
 }
 
 nav.navbar-desktop > ul > li > a.logo-link {
@@ -31,7 +32,8 @@ nav.navbar-desktop > ul > li > a.logo-link {
 }
 
 nav.navbar-desktop > ul > li > a:hover {
-  background-color: rgb(153, 193, 255);
+  background-color: rgb(26, 120, 255);
+  color: white;
 }
 
 .navbar-mobile {
@@ -50,6 +52,7 @@ nav.navbar-desktop > ul > li > a:hover {
   text-decoration: none;
   font-size: 17px;
   display: block;
+  transition: background-color 0.3s ease;
 }
 
 .navbar-mobile a.logo-link {
@@ -63,9 +66,15 @@ nav.navbar-desktop > ul > li > a:hover {
   position: absolute;
   right: 0;
   top: 0;
+  transition: none;
 }
 
 .navbar-mobile a:hover {
+  background-color: rgb(26, 120, 255);
+  color: white;
+}
+
+.navbar-mobile a.icon:hover {
   background-color: rgb(153, 193, 255);
 }
 
