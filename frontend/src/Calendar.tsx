@@ -59,7 +59,6 @@ function Calendar() {
         date_list.push(appointment);
       }
     }
-    console.log(map);
     setAppointmentsMap(map);
   }
 
