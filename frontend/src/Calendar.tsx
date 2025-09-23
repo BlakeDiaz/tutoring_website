@@ -25,6 +25,9 @@ function Calendar() {
   const [selected_date, setSelectedDate] = useState<Date>();
 
   useEffect(() => {
+    // Clear selected date so that the appointment list doesn't show by defualt when moving to a different month
+    setSelectedDate(undefined);
+
     const start_date = getFirstDateOfMonth(date.month, date.year);
     const end_date = getNextDay(getLastDateOfMonth(date.month, date.year));
     const url = `/api/book/get_available_appointments?start_date=${encodeURIComponent(
