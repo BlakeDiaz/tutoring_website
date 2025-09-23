@@ -1,7 +1,8 @@
-import { useState, type JSX } from "react";
+import { useState } from "react";
 import SiteNavbar from "./SiteNavbar";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
+import FormError from "./FormError";
 
 function RegisterForm() {
   const [name, setName] = useState("");
@@ -65,7 +66,7 @@ function RegisterForm() {
       <div className="form-wrapper">
         <div className="form">
           <h1 className="form-header">Sign Up</h1>
-          {renderError(error)}
+          <FormError errorMessage={error}></FormError>
           <div className="form-input-wrapper">
             <label className="form-input-label" htmlFor="name">
               Name:
@@ -126,17 +127,5 @@ function RegisterForm() {
     </div>
   );
 }
-
-const renderError = (error: string): JSX.Element => {
-  if (error === "") {
-    return <></>;
-  } else {
-    return (
-      <div className="form-error-wrapper">
-        <p className="form-error">{error}</p>
-      </div>
-    );
-  }
-};
 
 export default RegisterForm;

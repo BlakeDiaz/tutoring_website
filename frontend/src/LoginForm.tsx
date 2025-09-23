@@ -1,8 +1,9 @@
-import { useState, type JSX } from "react";
+import { useState } from "react";
 import SiteNavbar from "./SiteNavbar";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
 import "./Form.css";
+import FormError from "./FormError";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -60,7 +61,7 @@ function LoginForm() {
       <div className="form-wrapper">
         <div className="form">
           <h1 className="form-header">Log In</h1>
-          {renderError(error)}
+          <FormError errorMessage={error}></FormError>
           <div className="form-input-wrapper">
             <label className="form-input-label" htmlFor="password">
               Email Address
@@ -107,17 +108,5 @@ function LoginForm() {
     </div>
   );
 }
-
-const renderError = (error: string): JSX.Element => {
-  if (error === "") {
-    return <></>;
-  } else {
-    return (
-      <div className="form-error-wrapper">
-        <p className="form-error">{error}</p>
-      </div>
-    );
-  }
-};
 
 export default LoginForm;
