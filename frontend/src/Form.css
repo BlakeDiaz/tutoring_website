@@ -1,0 +1,124 @@
+.form-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+}
+
+.form {
+    border-radius: 2px;
+    background-color: white;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+    display: inline-block;
+    padding-bottom: 5px;
+    width: 30%;
+    min-width: 400px;
+}
+
+h1.form-header {
+    width: 100%;
+    background-color: rgb(0, 100, 252);
+    text-align: center;
+    color: white;
+    margin-top: 0px;
+    margin-bottom: 5px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.form-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+label.form-input-label {
+    width: 80%;
+    justify-self: center;
+    padding-left: 0%;
+    font-weight: bold;
+}
+
+input.form-input {
+    border: none;
+    border-bottom: 1px solid black;
+    outline: none;
+    background-color: transparent;
+    height: 30px;
+    width: 80%;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    transition: border-color 0.5s ease;
+    justify-self: center;
+}
+
+input.form-input:focus {
+    border-bottom: 1px solid rgb(0, 100, 252);
+    box-shadow: 0 1px 0 0 rgb(0, 100, 252);
+}
+
+.form-button-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 1rem;
+}
+
+button.form-button {
+    width: 40%;
+    border: none;
+    border-radius: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    background-color: rgb(248, 249, 250);
+    margin-top: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.5s ease;
+}
+
+button.form-button:hover {
+    background-color: rgb(26, 120, 255);
+    color: white;
+}
+
+button.primary-button {
+    background-color: rgb(0, 100, 252);
+    color: white;
+}
+
+.form-error-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+p.form-error {
+    width: 80%;
+    background-color: rgba(235, 0, 0, 0.9);
+    color: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    text-indent: 5px;
+    text-align: center;
+    border-radius: 10px;
+}
+
+.form-redirect-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+a.redirect-link {
+    color: black;
+    text-align: center;
+    justify-self: center;
+}

@@ -1,6 +1,6 @@
 import { useState, type JSX } from "react";
 import SiteNavbar from "./SiteNavbar";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
 
 function RegisterForm() {
@@ -10,6 +10,10 @@ function RegisterForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [search_params, _setSearchParams] = useSearchParams();
+
+  function doCancelClick(): void {
+    navigate("/");
+  }
 
   function doRegisterClick(): void {
     if (name === "" || email === "" || password === "") {
@@ -58,22 +62,66 @@ function RegisterForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
-        <h1>Sign Up</h1>
-        <label htmlFor="name">Name:</label>
-        <br />
-        <input type="text" id="name" name="name" required onChange={(evt) => setName(evt.target.value)} />
-        <br />
-        <label htmlFor="email">Email Address:</label>
-        <br />
-        <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
-        <br />
-        <label htmlFor="password">Password:</label>
-        <br />
-        <input type="text" id="password" name="password" required onChange={(evt) => setPassword(evt.target.value)} />
-        <br />
-        <button onClick={doRegisterClick}>Register</button>
-        {renderError(error)}
+      <div className="form-wrapper">
+        <div className="form">
+          <h1 className="form-header">Sign Up</h1>
+          {renderError(error)}
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="name">
+              Name:
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="name"
+              name="name"
+              placeholder="Enter your name"
+              required
+              onChange={(evt) => setName(evt.target.value)}
+            />
+          </div>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="email">
+              Email Address:
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="email"
+              name="email"
+              placeholder="Enter your email address"
+              required
+              onChange={(evt) => setEmail(evt.target.value)}
+            />
+          </div>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="password">
+              Password:
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              onChange={(evt) => setPassword(evt.target.value)}
+            />
+          </div>
+          <div className="form-button-wrapper">
+            <button className="form-button" onClick={doCancelClick}>
+              Cancel
+            </button>
+            <button className="form-button primary-button" onClick={doRegisterClick}>
+              Sign Up
+            </button>
+          </div>
+          <div className="form-redirect-wrapper">
+            <Link className="redirect-link" to="/login">
+              Already have an account? Log in here
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -84,10 +132,9 @@ const renderError = (error: string): JSX.Element => {
     return <></>;
   } else {
     return (
-      <>
-        <br />
-        <p>{error}</p>
-      </>
+      <div className="form-error-wrapper">
+        <p className="form-error">{error}</p>
+      </div>
     );
   }
 };

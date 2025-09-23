@@ -1,7 +1,8 @@
 import { useState, type JSX } from "react";
 import SiteNavbar from "./SiteNavbar";
-import { useNavigate, useSearchParams } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { getRedirectURL } from "./redirects";
+import "./Form.css";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,10 @@ function LoginForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [search_params, _setSearchParams] = useSearchParams();
+
+  function doCancelClick(): void {
+    navigate("/");
+  }
 
   function doLoginClick(): void {
     if (email === "" || password === "") {
@@ -52,18 +57,52 @@ function LoginForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
-        <h1>Log In</h1>
-        <label htmlFor="email">Email Address:</label>
-        <br />
-        <input type="text" id="email" name="email" required onChange={(evt) => setEmail(evt.target.value)} />
-        <br />
-        <label htmlFor="password">Password:</label>
-        <br />
-        <input type="text" id="password" name="password" required onChange={(evt) => setPassword(evt.target.value)} />
-        <br />
-        <button onClick={doLoginClick}>Login</button>
-        {renderError(error)}
+      <div className="form-wrapper">
+        <div className="form">
+          <h1 className="form-header">Log In</h1>
+          {renderError(error)}
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="password">
+              Email Address
+            </label>
+            <input
+              className="form-input"
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              required
+              onChange={(evt) => setEmail(evt.target.value)}
+            />
+          </div>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="password">
+              Password
+            </label>
+            <input
+              className="form-input"
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+              onChange={(evt) => setPassword(evt.target.value)}
+            />
+          </div>
+          <div className="form-button-wrapper">
+            <button className="form-button" onClick={doCancelClick}>
+              Cancel
+            </button>
+            <button className="form-button primary-button" onClick={doLoginClick}>
+              Login
+            </button>
+          </div>
+          <div className="form-redirect-wrapper">
+            <Link className="redirect-link" to="/register">
+              Don't have an account? Sign up here
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -74,10 +113,9 @@ const renderError = (error: string): JSX.Element => {
     return <></>;
   } else {
     return (
-      <>
-        <br />
-        <p>{error}</p>
-      </>
+      <div className="form-error-wrapper">
+        <p className="form-error">{error}</p>
+      </div>
     );
   }
 };
