@@ -93,38 +93,36 @@ function Calendar() {
     const prev_button_disabled = compareDates(date, getDate()) <= 0;
 
     return (
-      <div className="calendar-wrapper">
-        <div className="calendar">
-          <div className="calendar-header-wrapper">
-            <button
-              disabled={prev_button_disabled}
-              className="calendar-button"
-              onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}
-            >
-              {"<"}
-            </button>
-            <h2 className="calendar-header">
-              {getMonthString(date.month)} {date.year}
-            </h2>
-            <button className="calendar-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
-              {">"}
-            </button>
-          </div>
-          <table className="calendar-table">
-            <thead>
-              <tr>
-                <th>Sun</th>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-              </tr>
-            </thead>
-            <tbody className="thing">{rows}</tbody>
-          </table>
+      <div className="calendar">
+        <div className="calendar-header-wrapper">
+          <button
+            disabled={prev_button_disabled}
+            className="calendar-button"
+            onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}
+          >
+            {"<"}
+          </button>
+          <h2 className="calendar-header">
+            {getMonthString(date.month)} {date.year}
+          </h2>
+          <button className="calendar-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
+            {">"}
+          </button>
         </div>
+        <table className="calendar-table">
+          <thead>
+            <tr>
+              <th>Sun</th>
+              <th>Mon</th>
+              <th>Tue</th>
+              <th>Wed</th>
+              <th>Thu</th>
+              <th>Fri</th>
+              <th>Sat</th>
+            </tr>
+          </thead>
+          <tbody className="thing">{rows}</tbody>
+        </table>
       </div>
     );
   }
@@ -151,8 +149,10 @@ function Calendar() {
   return (
     <div>
       <SiteNavbar />
-      {renderCalendar()}
-      {renderAppointmentList()}
+      <div className="calendar-wrapper">
+        {renderCalendar()}
+        {renderAppointmentList()}
+      </div>
     </div>
   );
 }
