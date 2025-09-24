@@ -6,17 +6,28 @@
     margin-bottom: 3rem;
 }
 
+.appointment-table-container {
+    border-radius: 2px;
+    background-color: white;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+    width: 40%;
+    min-width: 500px;
+}
+
 .appointment-table-header-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+h2.appointment-table-header {
+    font-weight: bold;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
 table.appointment-table {
-    border-radius: 2px;
-    background-color: white;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
-    width: 40%;
+    width: 100%;
     min-width: 500px;
     border-collapse: collapse;
 }

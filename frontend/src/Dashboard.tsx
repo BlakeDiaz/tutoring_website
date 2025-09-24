@@ -4,7 +4,16 @@ import { createRedirectSearchParams } from "./redirects";
 import { useNavigate } from "react-router";
 import { isRecord } from "./types";
 import { type DashboardAppointment, parseDashboardAppointments } from "./dashboard_appointments";
-import { parseDate, formatHour24ToHour12, formatDateForAppointmentSmall } from "./dates";
+import {
+  parseDate,
+  formatHour24ToHour12,
+  formatDateForAppointmentSmall,
+  getDate,
+  type Date,
+  getFirstDateOfPrevMonth,
+  getFirstDateOfNextMonth,
+  getMonthString,
+} from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { type User, parseUser } from "./users";
 import "./Dashboard.css";
@@ -12,6 +21,7 @@ import "./Dashboard.css";
 function Dashboard() {
   const [user, setUser] = useState<User>();
   const [appointments, setAppointments] = useState<DashboardAppointment[]>([]);
+  const [date, setDate] = useState<Date>(getDate());
   const navigate = useNavigate();
 
   let cancelled_id: number | undefined = undefined;
@@ -154,27 +164,42 @@ function Dashboard() {
   function renderAppointments(): JSX.Element {
     const rows: JSX.Element[] = [];
     for (const appointment of appointments) {
-      rows.push(
-        <AppointmentRow
-          key={appointment.appointment_id}
-          appointment={appointment}
-          onCancelClick={doCancelAppointment}
-        />
-      );
+      const appointment_date = parseDate(appointment.date);
+      if (date.month === appointment_date.month && date.year === appointment_date.year)
+        rows.push(
+          <AppointmentRow
+            key={appointment.appointment_id}
+            appointment={appointment}
+            onCancelClick={doCancelAppointment}
+          />
+        );
     }
 
     return (
-      <table className="appointment-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Slots Filled</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
+      <div className="appointment-table-container">
+        <div className="appointment-table-header-wrapper">
+          <button className="bubble-button" onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}>
+            {"<"}
+          </button>
+          <h2 className="appointment-table-header">
+            {getMonthString(date.month)} {date.year}
+          </h2>
+          <button className="bubble-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
+            {">"}
+          </button>
+        </div>
+        <table className="appointment-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Slots Filled</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
     );
   }
 
