@@ -251,7 +251,6 @@ function AppointmentRow(props: AppointmentRowProps) {
 
   return (
     <React.Fragment key={props.appointment.appointment_id}>
-      {" "}
       <tr>
         <td>{date_formatted}</td>
         <td>{hour_formatted}</td>
