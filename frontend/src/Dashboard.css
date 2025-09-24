@@ -1,8 +1,13 @@
+h1.dashboard-header {
+    justify-self: center;
+    margin-top: 3rem;
+}
+
 .appointment-table-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 3rem;
+    margin-top: 1rem;
     margin-bottom: 3rem;
 }
 

@@ -215,8 +215,7 @@ function Dashboard() {
   return (
     <>
       <SiteNavbar />
-      <h1>Welcome, {user.name}</h1>
-      <h2>Your Appointments</h2>
+      <h1 className="dashboard-header">Your Appointments</h1>
       <div className="appointment-table-wrapper">{renderAppointments()}</div>
     </>
   );
