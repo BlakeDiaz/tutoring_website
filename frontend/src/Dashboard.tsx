@@ -1,12 +1,13 @@
-import { useEffect, useState, type JSX } from "react";
+import React, { useEffect, useState, type JSX } from "react";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
 import { useNavigate } from "react-router";
 import { isRecord } from "./types";
 import { type DashboardAppointment, parseDashboardAppointments } from "./dashboard_appointments";
-import { parseDate, formatDateForAppointment, formatHour24ToHour12 } from "./dates";
+import { parseDate, formatHour24ToHour12, formatDateForAppointmentSmall } from "./dates";
 import SiteNavbar from "./SiteNavbar";
 import { type User, parseUser } from "./users";
+import "./Dashboard.css";
 
 function Dashboard() {
   const [user, setUser] = useState<User>();
@@ -151,25 +152,24 @@ function Dashboard() {
   }
 
   function renderAppointments(): JSX.Element {
-    const links: JSX.Element[] = [];
+    const rows: JSX.Element[] = [];
     for (const appointment of appointments) {
-      const hour_24 = appointment.hour_24;
-      const date_formatted = formatDateForAppointment(parseDate(appointment.date));
-      const hour_formatted = formatHour24ToHour12(hour_24);
-
-      links.push(
-        <li key={appointment.appointment_id}>
-          <span>
-            <p>
-              {date_formatted} {hour_formatted} - {appointment.slots_booked}/{appointment.capacity} slots filled
-            </p>
-            <button onClick={() => doCancelAppointment(appointment.appointment_id)}>Cancel</button>
-          </span>
-        </li>
-      );
+      rows.push(<AppointmentRow appointment={appointment} />);
     }
 
-    return <ul>{links}</ul>;
+    return (
+      <table className="appointment-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Slots Filled</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
+      </table>
+    );
   }
 
   if (user === undefined) {
@@ -186,8 +186,108 @@ function Dashboard() {
       <SiteNavbar />
       <h1>Welcome, {user.name}</h1>
       <h2>Your Appointments</h2>
-      {renderAppointments()}
+      <div className="appointment-table-wrapper">{renderAppointments()}</div>
     </>
+  );
+}
+
+type AppointmentRowProps = {
+  appointment: DashboardAppointment;
+};
+
+function AppointmentRow(props: AppointmentRowProps) {
+  const [display_details, setDisplayDetails] = useState(false);
+
+  const hour_24 = props.appointment.hour_24;
+  const date_formatted = formatDateForAppointmentSmall(parseDate(props.appointment.date));
+  const hour_formatted = formatHour24ToHour12(hour_24);
+
+  function onShowToggleClick() {
+    setDisplayDetails(!display_details);
+  }
+
+  function renderBookings() {
+    const bookings: JSX.Element[] = [];
+    for (const booking of props.appointment.bookings) {
+      bookings.push(
+        <li className="participant-card" key={booking.email}>
+          <p className="participant-info">
+            <strong>Name: </strong>
+            {booking.name}
+          </p>
+          <p className="participant-info">
+            <strong>Email: </strong>
+            {booking.email}
+          </p>
+          {booking.comments != "" ? (
+            <p className="participant-info">
+              <strong>Comments: </strong>
+              {booking.comments}
+            </p>
+          ) : (
+            <></>
+          )}
+        </li>
+      );
+    }
+
+    return <ul className="participants-list">{bookings}</ul>;
+  }
+
+  function getDetailsRowClassName() {
+    if (display_details) {
+      return "details-row show";
+    }
+    return "details-row";
+  }
+
+  function getDetailsContentClassName() {
+    if (display_details) {
+      return "details-content show";
+    }
+
+    return "details-content";
+  }
+
+  return (
+    <React.Fragment key={props.appointment.appointment_id}>
+      {" "}
+      <tr>
+        <td>{date_formatted}</td>
+        <td>{hour_formatted}</td>
+        <td>
+          {props.appointment.slots_booked}/{props.appointment.capacity}
+        </td>
+        <td>
+          <button className="toggle-button" onClick={onShowToggleClick}>
+            {display_details ? "Show Less" : "Show More"}
+          </button>
+        </td>
+      </tr>
+      <tr className={getDetailsRowClassName()}>
+        <td colSpan={4}>
+          <div className={getDetailsContentClassName()}>
+            <h3 className="details-row-header">Details</h3>
+            <div className="details-row-wrapper">
+              <p className="details-item">
+                <strong>Leader: </strong>
+                {props.appointment.leader_name}
+              </p>
+              <p className="details-item">
+                <strong>Location: </strong>
+                {props.appointment.location}
+              </p>
+              <p className="details-item">
+                <strong>Subject: </strong>
+                {props.appointment.subject}
+              </p>
+            </div>
+            <h3 className="details-row-header">Participants</h3>
+            {renderBookings()}
+          </div>
+        </td>
+      </tr>
+    </React.Fragment>
   );
 }
 
