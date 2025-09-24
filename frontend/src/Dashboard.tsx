@@ -1,4 +1,4 @@
-import React, { useEffect, useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
 import { useNavigate } from "react-router";
@@ -154,7 +154,13 @@ function Dashboard() {
   function renderAppointments(): JSX.Element {
     const rows: JSX.Element[] = [];
     for (const appointment of appointments) {
-      rows.push(<AppointmentRow appointment={appointment} onCancelClick={doCancelAppointment} />);
+      rows.push(
+        <AppointmentRow
+          key={appointment.appointment_id}
+          appointment={appointment}
+          onCancelClick={doCancelAppointment}
+        />
+      );
     }
 
     return (
@@ -255,7 +261,7 @@ function AppointmentRow(props: AppointmentRowProps) {
   }
 
   return (
-    <React.Fragment key={props.appointment.appointment_id}>
+    <>
       <tr>
         <td>{date_formatted}</td>
         <td>{hour_formatted}</td>
@@ -296,7 +302,7 @@ function AppointmentRow(props: AppointmentRowProps) {
           </div>
         </td>
       </tr>
-    </React.Fragment>
+    </>
   );
 }
 
