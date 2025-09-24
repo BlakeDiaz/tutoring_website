@@ -203,11 +203,11 @@ function AppointmentRow(props: AppointmentRowProps) {
   const date_formatted = formatDateForAppointmentSmall(parseDate(props.appointment.date));
   const hour_formatted = formatHour24ToHour12(hour_24);
 
-  function onCancelClick() {
+  function doCancelClick() {
     props.onCancelClick(props.appointment.appointment_id);
   }
 
-  function onShowToggleClick() {
+  function doShowToggleClick() {
     setDisplayDetails(!display_details);
   }
 
@@ -263,7 +263,7 @@ function AppointmentRow(props: AppointmentRowProps) {
           {props.appointment.slots_booked}/{props.appointment.capacity}
         </td>
         <td>
-          <button className="toggle-button" onClick={onShowToggleClick}>
+          <button className="toggle-button" onClick={doShowToggleClick}>
             {display_details ? "Show Less" : "Show More"}
           </button>
         </td>
@@ -289,7 +289,7 @@ function AppointmentRow(props: AppointmentRowProps) {
             <h3 className="details-row-header">Participants</h3>
             {renderBookings()}
             <div className="cancel-button-wrapper">
-              <button className="cancel-button" onClick={onCancelClick}>
+              <button className="cancel-button" onClick={doCancelClick}>
                 Cancel Appointment
               </button>
             </div>
