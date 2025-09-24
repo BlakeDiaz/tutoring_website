@@ -62,5 +62,6 @@
 }
 
 .calendar-button:hover:enabled {
-    background-color: rgba(3, 186, 252, 0.8)
+    background-color: rgb(0, 100, 252);
+    color: white;
 }
