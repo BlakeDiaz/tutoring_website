@@ -154,7 +154,7 @@ function Dashboard() {
   function renderAppointments(): JSX.Element {
     const rows: JSX.Element[] = [];
     for (const appointment of appointments) {
-      rows.push(<AppointmentRow appointment={appointment} />);
+      rows.push(<AppointmentRow appointment={appointment} onCancelClick={doCancelAppointment} />);
     }
 
     return (
@@ -193,6 +193,7 @@ function Dashboard() {
 
 type AppointmentRowProps = {
   appointment: DashboardAppointment;
+  onCancelClick: (appointment_id: number) => void;
 };
 
 function AppointmentRow(props: AppointmentRowProps) {
@@ -201,6 +202,10 @@ function AppointmentRow(props: AppointmentRowProps) {
   const hour_24 = props.appointment.hour_24;
   const date_formatted = formatDateForAppointmentSmall(parseDate(props.appointment.date));
   const hour_formatted = formatHour24ToHour12(hour_24);
+
+  function onCancelClick() {
+    props.onCancelClick(props.appointment.appointment_id);
+  }
 
   function onShowToggleClick() {
     setDisplayDetails(!display_details);
@@ -283,6 +288,11 @@ function AppointmentRow(props: AppointmentRowProps) {
             </div>
             <h3 className="details-row-header">Participants</h3>
             {renderBookings()}
+            <div className="cancel-button-wrapper">
+              <button className="cancel-button" onClick={onCancelClick}>
+                Cancel Appointment
+              </button>
+            </div>
           </div>
         </td>
       </tr>
