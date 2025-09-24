@@ -12,8 +12,9 @@ import "./Dashboard.css";
 function Dashboard() {
   const [user, setUser] = useState<User>();
   const [appointments, setAppointments] = useState<DashboardAppointment[]>([]);
-  const [cancelledID, setCancelledID] = useState<number>();
   const navigate = useNavigate();
+
+  let cancelled_id: number | undefined = undefined;
 
   useEffect(() => {
     fetch("/api/auth/get_user_info", {
@@ -105,7 +106,7 @@ function Dashboard() {
       return;
     }
 
-    setCancelledID(appointment_id);
+    cancelled_id = appointment_id;
 
     const body = { appointment_id };
 
@@ -137,11 +138,10 @@ function Dashboard() {
 
   function doCancelAppointmentJson(_data: unknown) {
     // TODO more robust error handling
-    setAppointments(
-      appointments.filter((appointment) => {
-        appointment.appointment_id != cancelledID;
-      })
-    );
+    const new_appointments = appointments.filter((appointment) => {
+      return appointment.appointment_id !== cancelled_id;
+    });
+    setAppointments(new_appointments);
   }
 
   function doCancelAppointmentError(msg: string, ex?: unknown) {
