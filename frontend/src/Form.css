@@ -90,22 +90,20 @@ button.primary-button {
     color: white;
 }
 
-.form-error-wrapper {
+.form-result-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
 }
 
-.form-error {
+.form-result {
     width: 80%;
     position: relative;
 }
 
-p.form-error {
+p.form-result {
     width: 100%;
-    background-color: rgba(235, 0, 0, 0.9);
-    color: white;
     padding-top: 10px;
     padding-bottom: 10px;
     margin-top: 5px;
@@ -115,7 +113,12 @@ p.form-error {
     border-radius: 10px;
 }
 
-button.form-error-button {
+p.form-error {
+    background-color: rgba(235, 0, 0, 0.9);
+    color: white;
+}
+
+button.form-result-button {
     position: absolute;
     top: 2px;
     right: 2px;
