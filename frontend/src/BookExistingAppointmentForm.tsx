@@ -1,8 +1,10 @@
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useState } from "react";
 import SiteNavbar from "./SiteNavbar";
 import { useNavigate, useSearchParams } from "react-router";
 import { getCookie } from "./cookies";
 import { createRedirectSearchParams } from "./redirects";
+import FormError from "./FormError";
+import "./Form.css";
 
 const confirmation_code_format_regex = /^\d\d\d\d\d\d$/;
 
@@ -89,42 +91,48 @@ function BookExistingAppointmentForm() {
   return (
     <div>
       <SiteNavbar />
-      <div>
-        <h1>Confirm Your Appointment</h1>
-        <label htmlFor="comments">Any additional comments?</label>
-        <br />
-        <input type="text" id="comments" name="comments" onChange={(evt) => setComments(evt.target.value)} />
-        <br />
-        <label htmlFor="confirmation_code">Confirmation code</label>
-        <br />
-        <input
-          type="text"
-          id="confirmation_code"
-          name="confirmation_code"
-          onChange={(evt) => setConfirmationCode(evt.target.value)}
-        />
-        <br />
-        <span>
-          <button onClick={doCancelClick}>Cancel</button>
-          <button onClick={doBookExistingAppointmentClick}>Book Appointment</button>
-        </span>
-        {renderError(error)}
+      <div className="form-wrapper">
+        <div className="form">
+          <h1 className="form-header">Confirm Your Appointment</h1>
+          <FormError errorMessage={error} onCancelClick={() => setError("")}></FormError>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="comments">
+              Any additional comments?
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="comments"
+              name="comments"
+              placeholder="Enter your comments"
+              onChange={(evt) => setComments(evt.target.value)}
+            />
+          </div>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="confirmation_code">
+              Confirmation code
+            </label>
+            <input
+              className="form-input"
+              type="text"
+              id="confirmation_code"
+              name="confirmation_code"
+              placeholder="Enter appointment confirmation code"
+              onChange={(evt) => setConfirmationCode(evt.target.value)}
+            />
+          </div>
+          <div className="form-button-wrapper">
+            <button className="form-button" onClick={doCancelClick}>
+              Cancel
+            </button>
+            <button className="form-button primary-button" onClick={doBookExistingAppointmentClick}>
+              Book Appointment
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-const renderError = (error: string): JSX.Element => {
-  if (error === "") {
-    return <></>;
-  } else {
-    return (
-      <>
-        <br />
-        <p>{error}</p>
-      </>
-    );
-  }
-};
 
 export default BookExistingAppointmentForm;
