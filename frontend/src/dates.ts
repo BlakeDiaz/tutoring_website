@@ -155,6 +155,19 @@ export const formatDateForAppointment = (date: Date) => {
 };
 
 /**
+ * Formats a date like the following: {month-string} {day}. For example, the date
+ * {day: 10, month: 7, year: 2025} would be formatted as "July 10".
+ *
+ * @param date Date to be formatted.
+ * @returns Formatted date with month and day
+ */
+export const formatDateForAppointmentSmall = (date: Date) => {
+  const month_str = getMonthString(date.month);
+
+  return `${month_str} ${date.day}`;
+};
+
+/**
  * Gets the current date in Chicago time.
  *
  * @returns Current date as a Date object.
