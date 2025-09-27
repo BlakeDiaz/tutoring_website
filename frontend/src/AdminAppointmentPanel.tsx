@@ -5,7 +5,7 @@ import { parseAdminAppointments, type AdminAppointment } from "./admin_appointme
 import { isRecord } from "./types";
 import {
   dateToString,
-  formatDateForAppointment,
+  formatDateForAppointmentSmall,
   formatHour24ToHour12,
   getDate,
   getFirstDateOfMonth,
@@ -13,18 +13,19 @@ import {
   getFirstDateOfPrevMonth,
   getLastDateOfMonth,
   getMonthString,
+  getNextDay,
   parseDate,
   type Date,
 } from "./dates";
 import AdminNavbar from "./AdminNavbar";
 
 function AdminAppointmentPanel() {
-  const today = getDate();
   const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
   const [loaded, setLoaded] = useState<boolean>(false);
-  const [removedID, setRemoveledID] = useState<number>();
-  const [start_date, setStartDate] = useState<Date>(getFirstDateOfMonth(today.month, today.year));
+  const [date, setDate] = useState<Date>(getDate());
   const navigate = useNavigate();
+
+  let removed_id: number | undefined = undefined;
 
   useEffect(() => {
     fetch("/api/admin/is_admin", {
@@ -36,7 +37,8 @@ function AdminAppointmentPanel() {
       .then(doIsAdminResp)
       .catch(doIsAdminError);
 
-    const end_date = getLastDateOfMonth(start_date.month, start_date.year);
+    const start_date = getFirstDateOfMonth(date.month, date.year);
+    const end_date = getNextDay(getLastDateOfMonth(date.month, date.year));
     const params = new URLSearchParams();
     params.set("start_date", dateToString(start_date));
     params.set("end_date", dateToString(end_date));
@@ -48,7 +50,7 @@ function AdminAppointmentPanel() {
     })
       .then(doGetAllAppointmentsResp)
       .catch(doGetAllAppointmentsError);
-  }, [start_date]);
+  }, [date]);
 
   function doIsAdminResp(res: Response) {
     if (res.status === 200) {
@@ -103,7 +105,7 @@ function AdminAppointmentPanel() {
       return;
     }
 
-    setRemoveledID(appointment_id);
+    removed_id = appointment_id;
 
     const body = { appointment_id };
 
@@ -134,11 +136,10 @@ function AdminAppointmentPanel() {
   }
 
   function doRemoveAppointmentJson(_data: unknown) {
-    setAppointments(
-      appointments.filter((appointment) => {
-        appointment.appointment_id != removedID;
-      })
-    );
+    const new_appointments = appointments.filter((appointment) => {
+      return appointment.appointment_id !== removed_id;
+    });
+    setAppointments(new_appointments);
   }
 
   function doRemoveAppointmentError(msg: string, ex?: unknown) {
@@ -149,88 +150,186 @@ function AdminAppointmentPanel() {
   }
 
   function renderAppointments(): JSX.Element {
-    const elements: JSX.Element[] = [];
+    const rows: JSX.Element[] = [];
     for (const appointment of appointments) {
-      const hour_24 = appointment.hour_24;
-      const date_formatted = formatDateForAppointment(parseDate(appointment.date));
-      const hour_formatted = formatHour24ToHour12(hour_24);
-
-      let booked_appointment_details: JSX.Element = <></>;
-      if ("bookings" in appointment) {
-        const bookings: JSX.Element[] = [];
-        appointment.leader_name;
-        for (const booking of appointment.bookings) {
-          bookings.push(
-            <li key={booking.email}>
-              <p>
-                Name: {booking.name}
-                <br />
-                Email: {booking.email}
-                <br />
-                Comments: {booking.comments}
-              </p>
-            </li>
-          );
-        }
-        booked_appointment_details = (
-          <>
-            <p>
-              Leader Name: {appointment.leader_name} <br />
-              Subject: {appointment.subject}
-              <br />
-              Location: {appointment.location}
-            </p>
-            <ul>{bookings}</ul>
-          </>
+      const appointment_date = parseDate(appointment.date);
+      if (date.month === appointment_date.month && date.year === appointment_date.year)
+        rows.push(
+          <AdminAppointmentRow
+            key={appointment.appointment_id}
+            appointment={appointment}
+            onRemoveClick={doRemoveAppointment}
+          />
         );
-      }
-      elements.push(
-        <li key={appointment.appointment_id}>
-          <span>
-            <p>
-              {date_formatted} {hour_formatted} - {appointment.slots_booked}/{appointment.capacity} slots filled
-            </p>
-            {booked_appointment_details}
-            <button onClick={() => doRemoveAppointment(appointment.appointment_id)}>Remove</button>
-          </span>
-        </li>
-      );
     }
 
-    return <ul>{elements}</ul>;
+    return (
+      <div className="appointment-table-container">
+        <div className="appointment-table-header-wrapper">
+          <button className="bubble-button" onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}>
+            {"<"}
+          </button>
+          <h2 className="appointment-table-header">
+            {getMonthString(date.month)} {date.year}
+          </h2>
+          <button className="bubble-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
+            {">"}
+          </button>
+        </div>
+        <table className="appointment-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Slots Filled</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </table>
+      </div>
+    );
   }
 
   if (!loaded) {
-    return <p>Loading info...</p>;
+    return (
+      <>
+        <AdminNavbar />
+        <p>Loading info...</p>;
+      </>
+    );
   }
 
   return (
     <>
       <AdminNavbar />
-      <h2>
-        {getMonthString(start_date.month)} {start_date.year} Appointments
-      </h2>
-      <span>
-        <button
-          onClick={() => {
-            const a = getFirstDateOfPrevMonth(start_date.month, start_date.year);
-            console.log(a);
-            setStartDate(a);
-          }}
-        >
-          Previous Month
-        </button>
-        <button
-          onClick={() => {
-            const a = getFirstDateOfNextMonth(start_date.month, start_date.year);
-            console.log(a);
-            setStartDate(a);
-          }}
-        >
-          Next Month
-        </button>
-      </span>
-      {renderAppointments()}
+      <h1 className="dashboard-header">All Appointments</h1>
+      <div className="appointment-table-wrapper">{renderAppointments()}</div>
+    </>
+  );
+}
+
+type AdminAppointmentRowProps = {
+  appointment: AdminAppointment;
+  onRemoveClick: (appointment_id: number) => void;
+};
+
+function AdminAppointmentRow(props: AdminAppointmentRowProps) {
+  const [display_details, setDisplayDetails] = useState(false);
+
+  const hour_24 = props.appointment.hour_24;
+  const date_formatted = formatDateForAppointmentSmall(parseDate(props.appointment.date));
+  const hour_formatted = formatHour24ToHour12(hour_24);
+
+  function doRemoveClick() {
+    props.onRemoveClick(props.appointment.appointment_id);
+  }
+
+  function doShowToggleClick() {
+    setDisplayDetails(!display_details);
+  }
+
+  function renderDetails() {
+    if (!("bookings" in props.appointment)) {
+      return <></>;
+    }
+
+    return (
+      <>
+        <h3 className="details-row-header">Details</h3>
+        <div className="details-row-wrapper">
+          <p className="details-item">
+            <strong>Leader: </strong>
+            {props.appointment.leader_name}
+          </p>
+          <p className="details-item">
+            <strong>Location: </strong>
+            {props.appointment.location}
+          </p>
+          <p className="details-item">
+            <strong>Subject: </strong>
+            {props.appointment.subject}
+          </p>
+        </div>
+        <h3 className="details-row-header">Participants</h3>
+      </>
+    );
+  }
+
+  function renderBookings() {
+    if (!("bookings" in props.appointment)) {
+      return <></>;
+    }
+
+    const bookings: JSX.Element[] = [];
+    for (const booking of props.appointment.bookings) {
+      bookings.push(
+        <li className="participant-card" key={booking.email}>
+          <p className="participant-info">
+            <strong>Name: </strong>
+            {booking.name}
+          </p>
+          <p className="participant-info">
+            <strong>Email: </strong>
+            {booking.email}
+          </p>
+          {booking.comments != "" ? (
+            <p className="participant-info">
+              <strong>Comments: </strong>
+              {booking.comments}
+            </p>
+          ) : (
+            <></>
+          )}
+        </li>
+      );
+    }
+
+    return <ul className="participants-list">{bookings}</ul>;
+  }
+
+  function getDetailsRowClassName() {
+    if (display_details) {
+      return "details-row show";
+    }
+    return "details-row";
+  }
+
+  function getDetailsContentClassName() {
+    if (display_details) {
+      return "details-content show";
+    }
+
+    return "details-content";
+  }
+
+  return (
+    <>
+      <tr>
+        <td>{date_formatted}</td>
+        <td>{hour_formatted}</td>
+        <td>
+          {props.appointment.slots_booked}/{props.appointment.capacity}
+        </td>
+        <td>
+          <button className="toggle-button" onClick={doShowToggleClick}>
+            {display_details ? "Show Less" : "Show More"}
+          </button>
+        </td>
+      </tr>
+      <tr className={getDetailsRowClassName()}>
+        <td colSpan={4}>
+          <div className={getDetailsContentClassName()}>
+            {renderDetails()}
+            {renderBookings()}
+            <div className="cancel-button-wrapper">
+              <button className="cancel-button" onClick={doRemoveClick}>
+                Remove Appointment
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
     </>
   );
 }
