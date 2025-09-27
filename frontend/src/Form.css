@@ -118,6 +118,11 @@ p.form-error {
     color: white;
 }
 
+p.form-success {
+    background-color: rgb(23, 169, 23);
+    color: white;
+}
+
 button.form-result-button {
     position: absolute;
     top: 2px;
