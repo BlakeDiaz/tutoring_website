@@ -3,12 +3,18 @@ import { useNavigate } from "react-router";
 import { getCookie } from "./cookies";
 import AdminNavbar from "./AdminNavbar";
 import { compareDates, getDate, parseDate } from "./dates";
+import FormError from "./FormError";
+import FormSuccess from "./FormSuccess";
+import "./Form.css";
+
+type ResultStatus = "success" | "error" | "none";
 
 function AdminAddAppointment() {
   const [date, setDate] = useState("");
   const [hour_24, setHour24] = useState("0");
   const [capacity, setCapacity] = useState("1");
-  const [result, setResult] = useState("");
+  const [result_message, setResultMessage] = useState("");
+  const [result_status, setResultStatus] = useState<ResultStatus>("none");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,24 +46,37 @@ function AdminAddAppointment() {
     }
   }
 
+  function doCancelClick() {
+    navigate("/admin");
+  }
+
+  function doClearResultClick() {
+    setResultMessage("");
+    setResultStatus("none");
+  }
+
   function doAddAppointmentClick(): void {
     if (date === "") {
-      setResult("Date required");
+      setResultMessage("Date required");
+      setResultStatus("error");
       return;
     }
     if (hour_24 === "") {
-      setResult("Time required");
+      setResultMessage("Time required");
+      setResultStatus("error");
       return;
     }
     if (capacity === "") {
-      setResult("Capacity required");
+      setResultMessage("Capacity required");
+      setResultStatus("error");
       return;
     }
 
     const appointment_date = parseDate(date);
     const today_date = getDate();
     if (compareDates(appointment_date, today_date) < 0) {
-      setResult("Invalid date");
+      setResultMessage("Invalid date");
+      setResultStatus("error");
       return;
     }
 
@@ -80,17 +99,20 @@ function AdminAddAppointment() {
 
   function doAddAppointmentResp(res: Response): void {
     if (res.status === 200) {
-      setResult("Successfully added appointment");
+      setResultMessage("Successfully added appointment");
+      setResultStatus("success");
     } else if (res.status === 400) {
+      setResultStatus("error");
       const p = res.text();
-      p.then(setResult);
+      p.then(setResultMessage);
       p.catch((ex) => doAddAppointmentError("400 response is not text", ex));
     } else if (res.status === 401) {
       // User is not logged in
       navigate("/login");
     } else if (res.status === 409) {
+      setResultStatus("error");
       const p = res.text();
-      p.then(setResult);
+      p.then(setResultMessage);
       p.catch((ex) => doAddAppointmentError("409 response is not text", ex));
     } else {
       doAddAppointmentError(`Bad status code: ${res.status}`);
@@ -106,18 +128,22 @@ function AdminAddAppointment() {
 
   function renderDateInput(): JSX.Element {
     return (
-      <>
-        <label htmlFor="date">Appointment Date:</label>
-        <input name="date" type="date" onChange={(evt) => setDate(evt.target.value)} />
-      </>
+      <div className="form-input-wrapper">
+        <label className="form-input-label" htmlFor="date">
+          Appointment Date:
+        </label>
+        <input className="form-input" name="date" type="date" onChange={(evt) => setDate(evt.target.value)} />
+      </div>
     );
   }
 
   function renderHour24Input(): JSX.Element {
     return (
-      <>
-        <label htmlFor="hour">Appointment Time:</label>
-        <select name="hour" value="0" onChange={(evt) => setHour24(evt.target.value)}>
+      <div className="form-input-wrapper">
+        <label className="form-input-label" htmlFor="hour">
+          Appointment Time:
+        </label>
+        <select className="form-select" name="hour" value="0" onChange={(evt) => setHour24(evt.target.value)}>
           <option key="0" value="0">
             12:00 AM
           </option>
@@ -191,15 +217,17 @@ function AdminAddAppointment() {
             11:00 PM
           </option>
         </select>
-      </>
+      </div>
     );
   }
 
   function renderCapacityInput(): JSX.Element {
     return (
-      <>
-        <label htmlFor="capacity">Capacity:</label>
-        <select name="capacity" value="1" onChange={(evt) => setCapacity(evt.target.value)}>
+      <div className="form-input-wrapper">
+        <label className="form-input-label" htmlFor="capacity">
+          Capacity:
+        </label>
+        <select className="form-select" name="capacity" value="1" onChange={(evt) => setCapacity(evt.target.value)}>
           <option key="1" value="1">
             1
           </option>
@@ -237,31 +265,40 @@ function AdminAddAppointment() {
             12
           </option>
         </select>
-      </>
+      </div>
     );
   }
 
-  function renderResult(): JSX.Element {
-    if (result === "") {
+  function renderFormResult(): JSX.Element {
+    if (result_status === "success") {
+      return <FormSuccess successMessage={result_message} onCancelClick={doClearResultClick} />;
+    } else if (result_status === "error") {
+      return <FormError errorMessage={result_message} onCancelClick={doClearResultClick} />;
+    } else {
       return <></>;
     }
-
-    return <p>{result}</p>;
   }
 
   return (
     <>
       <AdminNavbar />
-      <h2>Add an Appointment</h2>
-      {renderDateInput()}
-      <br />
-      {renderHour24Input()}
-      <br />
-      {renderCapacityInput()}
-      <br />
-      <button onClick={doAddAppointmentClick}>Add Appointment</button>
-      <br />
-      {renderResult()}
+      <div className="form-wrapper">
+        <div className="form">
+          <h1 className="form-header">Add an Appointment</h1>
+          {renderFormResult()}
+          {renderDateInput()}
+          {renderHour24Input()}
+          {renderCapacityInput()}
+          <div className="form-button-wrapper">
+            <button className="form-button" onClick={doCancelClick}>
+              Cancel
+            </button>
+            <button className="form-button primary-button" onClick={doAddAppointmentClick}>
+              Add Appointment
+            </button>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

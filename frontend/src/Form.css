@@ -58,6 +58,18 @@ input.form-input:focus {
     box-shadow: 0 1px 0 0 rgb(0, 100, 252);
 }
 
+select.form-select {
+    border: 1px solid black;
+    outline: none;
+    background-color: transparent;
+    height: 30px;
+    width: 80%;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    transition: border-color 0.5s ease;
+    justify-self: center; 
+}
+
 .form-button-wrapper {
     display: flex;
     flex-direction: row;
