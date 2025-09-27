@@ -87,7 +87,7 @@ function RegisterForm() {
             </label>
             <input
               className="form-input"
-              type="text"
+              type="email"
               id="email"
               name="email"
               placeholder="Enter your email address"
@@ -101,7 +101,7 @@ function RegisterForm() {
             </label>
             <input
               className="form-input"
-              type="text"
+              type="password"
               id="password"
               name="password"
               placeholder="Enter your password"
