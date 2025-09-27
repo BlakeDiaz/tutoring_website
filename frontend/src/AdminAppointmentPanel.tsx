@@ -18,6 +18,7 @@ import {
   type Date,
 } from "./dates";
 import AdminNavbar from "./AdminNavbar";
+import "./Dashboard.css";
 
 function AdminAppointmentPanel() {
   const [appointments, setAppointments] = useState<AdminAppointment[]>([]);
