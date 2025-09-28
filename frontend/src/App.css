@@ -44,7 +44,8 @@ img.homepage-image {
 
     img.homepage-image {
         flex: 1;
-        max-width: calc(100% - 2rem);
+        max-width: 100%;
+        width: calc(100% - 2rem);
         height: auto;
         display: block;
         margin-left: 1rem;
