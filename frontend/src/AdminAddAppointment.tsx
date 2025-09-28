@@ -143,7 +143,7 @@ function AdminAddAppointment() {
         <label className="form-input-label" htmlFor="hour">
           Appointment Time:
         </label>
-        <select className="form-select" name="hour" value="0" onChange={(evt) => setHour24(evt.target.value)}>
+        <select className="form-select" name="hour" value={hour_24} onChange={(evt) => setHour24(evt.target.value)}>
           <option key="0" value="0">
             12:00 AM
           </option>
@@ -227,7 +227,12 @@ function AdminAddAppointment() {
         <label className="form-input-label" htmlFor="capacity">
           Capacity:
         </label>
-        <select className="form-select" name="capacity" value="1" onChange={(evt) => setCapacity(evt.target.value)}>
+        <select
+          className="form-select"
+          name="capacity"
+          value={capacity}
+          onChange={(evt) => setCapacity(evt.target.value)}
+        >
           <option key="1" value="1">
             1
           </option>
