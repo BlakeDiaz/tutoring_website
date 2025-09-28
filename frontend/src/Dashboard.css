@@ -15,8 +15,17 @@ h1.dashboard-header {
     border-radius: 2px;
     background-color: white;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
-    width: 40%;
-    min-width: 500px;
+    width: 95%;
+}
+
+@media (min-width: 900px) {
+    .appointment-table-container {
+        border-radius: 2px;
+        background-color: white;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
+        width: 40%;
+        min-width: 500px;
+    }
 }
 
 .appointment-table-header-wrapper {
@@ -33,7 +42,8 @@ h2.appointment-table-header {
 
 table.appointment-table {
     width: 100%;
-    min-width: 500px;
+    min-width: 300px;
+    table-layout: fixed;
     border-collapse: collapse;
 }
 
@@ -44,11 +54,13 @@ table.appointment-table > thead > tr {
 table.appointment-table > thead > tr > th {
     color: white;
     font-size: 18px;
+    word-wrap: break-word;
 }
 
 table.appointment-table > tbody > tr {
     border-bottom: 1px solid black;
     width: 100%;
+    word-wrap: break-word;
 }
 
 table.appointment-table > tbody > tr.details-row {
