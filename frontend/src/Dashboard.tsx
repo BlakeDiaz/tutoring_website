@@ -315,6 +315,10 @@ function AppointmentRow(props: AppointmentRowProps) {
                 <strong>Subject: </strong>
                 {props.appointment.subject}
               </p>
+              <p className="details-item">
+                <strong>Confirmation Code: </strong>
+                {props.appointment.confirmation_code}
+              </p>
             </div>
             <h3 className="details-row-header">Participants</h3>
             {renderBookings()}

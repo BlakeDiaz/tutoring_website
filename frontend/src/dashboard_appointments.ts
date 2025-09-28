@@ -6,6 +6,7 @@ export type DashboardAppointment = Appointment & {
   leader_name: string;
   subject: string;
   location: string;
+  confirmation_code: string;
   bookings: Booking[];
 };
 
@@ -23,6 +24,9 @@ export const parseDashboardAppointment = (data: unknown): DashboardAppointment =
   if (typeof data.location !== "string") {
     throw new Error(`data.location is not a string: ${typeof data.location}`);
   }
+  if (typeof data.confirmation_code !== "string") {
+    throw new Error(`data.confirmation_code is not a string: ${typeof data.confirmation_code}`);
+  }
   const bookings = parseBookings(data.bookings);
 
   return {
@@ -34,6 +38,7 @@ export const parseDashboardAppointment = (data: unknown): DashboardAppointment =
     leader_name: data.leader_name,
     subject: data.subject,
     location: data.location,
+    confirmation_code: data.confirmation_code,
     bookings: bookings,
   };
 };

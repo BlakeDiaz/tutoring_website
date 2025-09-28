@@ -80,7 +80,7 @@ def get_user_appointments():
                 WITH ScheduledAppointments AS (
                 SELECT ats.appointmentID AS appointmentID, ats.date AS date, ats.hour24 AS hour24,
                        ats.capacity AS capacity, COUNT(b.userID) AS slotsBooked, ats.leaderUserID AS leaderUserID,
-                       ats.subject AS subject, ats.location AS location
+                       ats.subject AS subject, ats.location AS location, ats.confirmationCode AS confirmationCode
                 FROM AppointmentTimeSlots ats
                 INNER JOIN Bookings b
                     ON ats.appointmentID = b.appointmentID
@@ -90,7 +90,8 @@ def get_user_appointments():
             )
             SELECT sa.appointmentID AS appointment_id, sa.date AS date, sa.hour24 AS hour_24, sa.capacity AS capacity,
                    sa.slotsBooked AS slots_booked, u1.name AS leader_name, sa.subject AS subject,
-                   sa.location AS location, u2.name AS user_name, u2.email AS user_email, b.comments AS user_comments
+                   sa.location AS location, sa.confirmationCode AS confirmation_code, u2.name AS user_name,
+                   u2.email AS user_email, b.comments AS user_comments
             FROM ScheduledAppointments sa
             INNER JOIN Bookings b
                 ON sa.appointmentID = b.appointmentID
@@ -144,6 +145,7 @@ def get_user_appointments():
                 "leader_name": record.get("leader_name"),
                 "subject": record.get("subject"),
                 "location": record.get("location"),
+                "confirmation_code": record.get("confirmation_code"),
                 "bookings": appointments_to_bookings[record.get("appointment_id")],
             }
         )
