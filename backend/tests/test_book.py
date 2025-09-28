@@ -4,7 +4,8 @@ from sqlalchemy import text
 
 def test_get_available_appointments_with_multiple_on_that_day(client):
     response = client.get(
-        "/api/book/get_available_appointments", query_string={"date": "2025-08-01"}
+        "/api/book/get_available_appointments",
+        query_string={"start_date": "2025-08-01", "end_date": "2025-08-02"},
     )
     assert response.status_code == 200
     assert len(response.json["appointments"]) == 3
@@ -30,7 +31,8 @@ def test_get_available_appointments_with_multiple_on_that_day(client):
 
 def test_get_available_appointments_with_full_appointment_on_that_day(client):
     response = client.get(
-        "/api/book/get_available_appointments", query_string={"date": "2025-08-03"}
+        "/api/book/get_available_appointments",
+        query_string={"start_date": "2025-08-03", "end_date": "2025-08-04"},
     )
     assert response.status_code == 200
     assert len(response.json["appointments"]) == 0
@@ -38,7 +40,8 @@ def test_get_available_appointments_with_full_appointment_on_that_day(client):
 
 def test_get_available_appointments_with_no_appointments_on_that_day(client):
     response = client.get(
-        "/api/book/get_available_appointments", query_string={"date": "2025-07-03"}
+        "/api/book/get_available_appointments",
+        query_string={"start_date": "2025-07-03", "end_date": "2025-07-04"},
     )
     assert response.status_code == 200
     assert len(response.json["appointments"]) == 0
