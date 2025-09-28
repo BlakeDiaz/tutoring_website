@@ -23,9 +23,6 @@ function SiteNavbarDesktop() {
           <Link to="/book">Book</Link>
         </li>
         <li>
-          <Link to="/">About</Link>
-        </li>
-        <li>
           <Link to="/login">Log In</Link>
         </li>
         <li>
@@ -47,7 +44,6 @@ function SiteNavbarMobile() {
       return (
         <div>
           <Link to="/book">Book</Link>
-          <Link to="/">About</Link>
           <Link to="/login">Log In</Link>
           <Link to="/register">Sign Up</Link>
           <Link to="/dashboard">Dashboard</Link>
