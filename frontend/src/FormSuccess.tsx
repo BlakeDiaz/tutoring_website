@@ -11,8 +11,8 @@ function FormSuccess(props: FormSuccessProps) {
   } else {
     return (
       <div className="form-result-wrapper">
-        <div className="form-result">
-          <p className="form-result form-success">{props.successMessage}</p>
+        <div className="form-result form-success">
+          <p className="form-result">{props.successMessage}</p>
           <button className="form-result-button" onClick={props.onCancelClick}>
             ×
           </button>

@@ -11,8 +11,8 @@ function FormError(props: FormErrorProps) {
   } else {
     return (
       <div className="form-result-wrapper">
-        <div className="form-result">
-          <p className="form-result form-error">{props.errorMessage}</p>
+        <div className="form-result form-error">
+          <p className="form-result">{props.errorMessage}</p>
           <button className="form-result-button" onClick={props.onCancelClick}>
             ×
           </button>

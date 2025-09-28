@@ -132,29 +132,31 @@ button.primary-button {
     width: 100%;
 }
 
-.form-result {
+div.form-result {
     width: 80%;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 10px;
     position: relative;
 }
 
+div.form-error {
+    background-color: rgba(235, 0, 0, 0.9);
+}
+
+div.form-success {
+    background-color: rgb(23, 169, 23);
+}
+
 p.form-result {
-    width: 100%;
+    width: 80%;
+    justify-self: center;
     padding-top: 10px;
     padding-bottom: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
+    margin-top: 0px;
+    margin-bottom: 0px;
     text-indent: 5px;
     text-align: center;
-    border-radius: 10px;
-}
-
-p.form-error {
-    background-color: rgba(235, 0, 0, 0.9);
-    color: white;
-}
-
-p.form-success {
-    background-color: rgb(23, 169, 23);
     color: white;
 }
 
