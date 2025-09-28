@@ -8,6 +8,7 @@ function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verify_password, setVerifyPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [search_params, _setSearchParams] = useSearchParams();
@@ -17,7 +18,11 @@ function RegisterForm() {
   }
 
   function doRegisterClick(): void {
-    if (name === "" || email === "" || password === "") {
+    if (name === "" || email === "" || password === "" || verify_password === "") {
+      return;
+    }
+    if (password !== verify_password) {
+      setError("Password and Verify Password fields are different");
       return;
     }
 
@@ -107,6 +112,20 @@ function RegisterForm() {
               placeholder="Enter your password"
               required
               onChange={(evt) => setPassword(evt.target.value)}
+            />
+          </div>
+          <div className="form-input-wrapper">
+            <label className="form-input-label" htmlFor="verify-password">
+              Verify Password:
+            </label>
+            <input
+              className="form-input"
+              type="password"
+              id="verify-password"
+              name="verifypassword"
+              placeholder="Re-enter your password"
+              required
+              onChange={(evt) => setVerifyPassword(evt.target.value)}
             />
           </div>
           <div className="form-button-wrapper">
