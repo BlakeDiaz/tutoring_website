@@ -99,7 +99,7 @@ function Calendar() {
         <div className="calendar-header-wrapper">
           <button
             disabled={prev_button_disabled}
-            className="calendar-button"
+            className="calendar-button date-change-button"
             onClick={() => setDate(getFirstDateOfPrevMonth(date.month, date.year))}
           >
             {"<"}
@@ -107,7 +107,10 @@ function Calendar() {
           <h2 className="calendar-header">
             {getMonthString(date.month)} {date.year}
           </h2>
-          <button className="calendar-button" onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}>
+          <button
+            className="calendar-button date-change-button"
+            onClick={() => setDate(getFirstDateOfNextMonth(date.month, date.year))}
+          >
             {">"}
           </button>
         </div>

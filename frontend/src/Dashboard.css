@@ -30,7 +30,7 @@ h1.dashboard-header {
 
 .appointment-table-header-wrapper {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -204,6 +204,8 @@ button.bubble-button {
     border-width: 0px;
     border-radius: 50%;
     transition: 0.2s ease-in-out;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
 
 button.bubble-button:disabled {
