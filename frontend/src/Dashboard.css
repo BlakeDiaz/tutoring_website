@@ -113,7 +113,7 @@ table.appointment-table > tbody > tr > td:last-child {
     align-items: center;
     width: fit-content;
     justify-self: center;
-    gap: 1rem;
+    flex-wrap: wrap;
     border: 1px solid rgb(221, 221, 221);
     border-radius: 8px;
     background: white;
@@ -134,6 +134,8 @@ table.appointment-table > tbody > tr > td:last-child {
 p.details-item {
     margin-left: 10px;
     margin-right: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 ul.participants-list {
