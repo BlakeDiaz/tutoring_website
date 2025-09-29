@@ -38,6 +38,7 @@ h2.appointment-table-header {
     font-weight: bold;
     margin-left: 10px;
     margin-right: 10px;
+    text-align: center;
 }
 
 table.appointment-table {
