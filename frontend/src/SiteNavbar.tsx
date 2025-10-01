@@ -16,7 +16,7 @@ function SiteNavbarDesktop() {
       <ul>
         <li>
           <Link className="logo-link" to="/">
-            Yucheng's Tutoring
+            YuCheng's Tutoring
           </Link>
         </li>
         <li>
@@ -57,7 +57,7 @@ function SiteNavbarMobile() {
   return (
     <div className="navbar-mobile">
       <Link className="logo-link" to="/">
-        Yucheng's Tutoring
+        YuCheng's Tutoring
       </Link>
       {renderSubLinks()}
       <a className="icon" onClick={() => setShowLinks(!show_links)}>
