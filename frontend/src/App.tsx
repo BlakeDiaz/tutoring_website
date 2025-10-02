@@ -11,7 +11,7 @@ function App() {
         <div className="homepage-text">
           <h1 className="homepage-header">Learn. Understand. Succeed.</h1>
           <p className="homepage-paragraph">
-            Take your next step towards succees at YuCheng's Tutoring. We offer personalized tutoring sessions in a wide
+            Take your next step towards success at YuCheng's Tutoring. We offer personalized tutoring sessions in a wide
             array of subjects, from Calculus to Organic Chemistry. Invest in your future today, and reap the rewards
             tomorrow.
           </p>
