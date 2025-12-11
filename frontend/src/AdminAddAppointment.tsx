@@ -2,7 +2,7 @@ import { useEffect, useState, type JSX } from "react";
 import { useNavigate } from "react-router";
 import { getCookie } from "./cookies";
 import AdminNavbar from "./AdminNavbar";
-import { compareDates, getDate, parseDate } from "./dates";
+import { compareDates, formatHour24ToHour12, getDate, parseDate } from "./dates";
 import "./Form.css";
 import FormResult, { type FormResultStatus } from "./FormResult";
 
@@ -96,7 +96,7 @@ function AdminAddAppointment() {
 
   function doAddAppointmentResp(res: Response): void {
     if (res.status === 200) {
-      setResultMessage("Successfully added appointment");
+      setResultMessage(`Successfully added appointment on ${date} at ${formatHour24ToHour12(Number(hour_24))}`);
       setResultStatus("success");
     } else if (res.status === 400) {
       setResultStatus("error");
