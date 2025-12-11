@@ -422,10 +422,10 @@ export const getCalendarDatesForMonth = (month: number, year: number) => {
 
 export const formatHour24ToHour12 = (hour_24: number): string => {
   if (hour_24 === 0) {
-    return "12:00 am";
+    return "12:00am";
   } else if (hour_24 < 13) {
-    return `${hour_24}:00 am`;
+    return `${hour_24}:00am`;
   } else {
-    return `${hour_24 - 12}:00 pm`;
+    return `${hour_24 - 12}:00pm`;
   }
 };
