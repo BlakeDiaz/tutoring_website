@@ -32,3 +32,4 @@ backend/tests/__pycache__
 
 # Secrets
 backend/config.ini
+database_password.txt
