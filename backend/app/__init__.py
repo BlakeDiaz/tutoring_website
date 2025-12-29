@@ -1,10 +1,12 @@
 from flask import Flask
+from flask_cors import CORS
 from .config import Config, DevelopmentConfig
 
 
 def create_app(config: Config = DevelopmentConfig()):
     app = Flask(__name__)
     app.config.from_object(config)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     from .jwt import jwt
     from .db import db
