@@ -1,0 +1,12 @@
+localhost {
+    root * /app/dist
+
+    handle /api/* {
+        reverse_proxy backend:5001
+    }
+
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
+}
