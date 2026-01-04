@@ -1,0 +1,53 @@
+services:
+  backend:
+    image: booking-backend
+    pull_policy: never
+    container_name: booking-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - 5001:5001
+    secrets:
+      - backend_config
+
+  database:
+    image: postgres:17.7-bookworm
+    container_name: booking-database
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/database_password
+    secrets:
+      - database_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  
+  frontend:
+    image: booking-reverse-proxy
+    pull_policy: never
+    container_name: booking-reverse-proxy
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+
+secrets:
+  backend_config:
+    file: backend/config.ini
+  database_password:
+    file: ./database_password.txt
+
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:
