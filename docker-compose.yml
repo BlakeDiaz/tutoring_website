@@ -5,6 +5,7 @@ services:
     container_name: booking-backend
     build:
       context: ./backend
+      target: development
       dockerfile: Dockerfile
     ports:
       - 5001:5001
@@ -17,6 +18,7 @@ services:
     container_name: booking-frontend
     build:
       context: ./frontend
+      target: development
       dockerfile: Dockerfile
     depends_on:
       backend:
