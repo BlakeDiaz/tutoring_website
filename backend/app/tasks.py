@@ -195,6 +195,7 @@ def cancel_appointment_task(appointment_id: int, user_id: int):
                 )
 
             db.session.commit()
+            return
         except SerializationFailure:
             db.session.rollback()
             tries += 1
