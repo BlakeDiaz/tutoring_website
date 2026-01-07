@@ -31,5 +31,6 @@ CREATE TABLE Bookings (
     appointmentID INT REFERENCES AppointmentTimeSlots,
     userID INT REFERENCES Users,
     bookingTimestamp TIMESTAMP NOT NULL,
-    comments VARCHAR(512) NOT NULL
+    comments VARCHAR(512) NOT NULL,
+    pending BOOLEAN NOT NULL
 );
