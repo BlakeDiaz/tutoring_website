@@ -11,6 +11,16 @@ services:
       - 5001:5001
     secrets:
       - backend_config
+  
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python -u -m app.worker
+    depends_on:
+      - backend
+    secrets:
+      - backend_config
 
   frontend:
     image: booking-frontend

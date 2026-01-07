@@ -11,6 +11,18 @@ services:
       - 5001:5001
     secrets:
       - backend_config
+  
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python -u -m app.worker
+    environment:
+      - FLASK_ENV=production
+    depends_on:
+      - backend
+    secrets:
+      - backend_config
 
   database:
     image: postgres:17.7-bookworm
