@@ -13,11 +13,13 @@ def create_app(config: Config = DevelopmentConfig()):
     from . import book
     from . import auth
     from . import admin
+    from .tasks import procrastinate_app
 
     jwt.init_app(app)
     db.init_app(app)
     app.register_blueprint(book.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(admin.bp)
+    procrastinate_app.open()
 
     return app
