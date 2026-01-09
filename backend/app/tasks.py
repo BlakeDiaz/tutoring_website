@@ -5,6 +5,7 @@ from sqlalchemy import text
 import random
 from psycopg.errors import SerializationFailure
 import time
+from .emails import send_book_appointment_confirmation_email, send_cancel_appointment_confirmation_email
 
 TRANSACTION_RETRY_AMOUNT = 3
 
@@ -25,6 +26,49 @@ procrastinate_app = procrastinate.App(
 
 def generate_confirmation_code():
     return "".join([str(random.randint(0, 9)) for _ in range(6)])
+
+
+def get_details_for_email(appointment_id: int, user_id: int) -> tuple[str, str, str, str]:
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT name, email
+                FROM Users
+                WHERE userID = :user_id;
+                """
+            ),
+            {
+                "user_id": user_id
+            }
+        )
+        .mappings()
+        .fetchone()
+    )
+    name = record.get("name")
+    email = record.get("email")
+
+    record = (
+        db.session.execute(
+            text(
+                """
+                SELECT date, hour24
+                FROM AppointmentTimeSlots
+                WHERE appointmentID = :appointment_id;
+                """
+            ),
+            {
+                "appointment_id": appointment_id
+            }
+        )
+        .mappings()
+        .fetchone()
+    )
+    appointment_date = record.get("date")
+    appointment_time = f"{record.get("hour24")}:00"
+
+    return email, name, appointment_date, appointment_time
+    
 
 @procrastinate_app.task(queue="bookings")
 def book_new_appointment_task(appointment_id: int, user_id: int, comments: str, subject: str, location: str):
@@ -67,6 +111,8 @@ def book_new_appointment_task(appointment_id: int, user_id: int, comments: str, 
                 },
             )
 
+            email_address, name, appointment_date, appointment_time = get_details_for_email(appointment_id, user_id)
+            send_book_appointment_confirmation_email(email_address, name, appointment_date, appointment_time)
             db.session.commit()
             return
         except SerializationFailure:
@@ -95,6 +141,8 @@ def book_existing_appointment_task(appointment_id: int, user_id: int, comments: 
                 },
             )
 
+            email_address, name, appointment_date, appointment_time = get_details_for_email(appointment_id, user_id)
+            send_book_appointment_confirmation_email(email_address, name, appointment_date, appointment_time)
             db.session.commit()
             return
         except SerializationFailure:
@@ -194,6 +242,8 @@ def cancel_appointment_task(appointment_id: int, user_id: int):
                     },
                 )
 
+            email_address, name, appointment_date, appointment_time = get_details_for_email(appointment_id, user_id)
+            send_cancel_appointment_confirmation_email(email_address, name, appointment_date, appointment_time)
             db.session.commit()
             return
         except SerializationFailure:
